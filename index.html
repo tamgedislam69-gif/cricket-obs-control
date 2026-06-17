@@ -1,191 +1,2669 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CMS Studio Production Core</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMS Studio - Mobile OBS Control System</title>
   <link rel="stylesheet" href="/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Premium Google Fonts presets for Font Styler -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@300;400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+  
   <style>
-    body { font-family: 'Outfit', sans-serif; background-color: #030303; color: #f4f4f5; }
-    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #09090b; } ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
-    .live-slot { border-color: #ef4444 !important; box-shadow: 0 0 30px rgba(239, 68, 68, 0.25) !important; background-color: rgba(239, 68, 68, 0.05); }
-    .live-btn { background-color: #ef4444 !important; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-    .fx-drop { box-shadow: 0 5px 15px rgba(0,0,0,0.8); }
-    .fx-neon { box-shadow: 0 0 10px rgba(59, 130, 246, 0.8); border: 2px solid rgba(100, 150, 255, 0.8); }
-    .neon-panel { box-shadow: 0 0 30px rgba(59,130,246,0.05), inset 0 0 10px rgba(255,255,255,0.02); }
+    /* Customizable root variables */
+    :root {
+      --accent-color: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.4);
+      --app-bg: #030303;
+      --text-color: #f4f4f5;
+      --base-font: 'Outfit', sans-serif;
+    }
+
+    body {
+      font-family: var(--base-font);
+      background-color: var(--app-bg);
+      color: var(--text-color);
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                  color 0.3s ease, 
+                  font-family 0.3s ease;
+    }
+    
+    /* Apply accent colors dynamically */
+    .dynamic-accent-bg {
+      background-color: var(--accent-color);
+    }
+    .dynamic-accent-border {
+      border-color: var(--accent-color);
+    }
+    .dynamic-accent-text {
+      color: var(--accent-color);
+    }
+    .dynamic-accent-glow {
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+    
+    /* Animation Keyframes */
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
+      50% { box-shadow: 0 0 40px var(--accent-glow); }
+    }
+    
+    @keyframes rotateRadar {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    @keyframes shrinkFade {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.9); }
+    }
+    
+    /* Custom CSS components */
+    .premium-panel {
+      background: linear-gradient(135deg, rgba(14, 16, 24, 0.85) 0%, rgba(9, 10, 15, 0.98) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+    }
+    
+    .glow-blue-card {
+      animation: pulseGlow 4s infinite ease-in-out;
+    }
+
+    .glass-input {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-input:focus {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    /* Keypad key hover state */
+    .keypad-btn {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .keypad-btn:active {
+      transform: scale(0.92);
+      background-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .animate-logo {
+      animation: rotateRadar 24s linear infinite;
+    }
+
+    .fade-in-up {
+      animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Tab styles */
+    .tab-section {
+      display: none;
+    }
+    .tab-section.active {
+      display: block;
+      animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Quick status indicators */
+    .blink-active {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    .blink-red {
+      width: 10px;
+      height: 10px;
+      background-color: #ef4444;
+      border-radius: 50%;
+      box-shadow: 0 0 12px #ef4444;
+      animation: pulse 1s infinite;
+    }
+
+    /* Toast animation setup */
+    .toast-animate {
+      animation: fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Media Gallery tab button dynamic selection */
+    .gallery-tab-btn.active {
+      background-color: var(--accent-color);
+      color: #ffffff;
+      box-shadow: 0 4px 12px var(--accent-glow);
+      border-color: transparent;
+    }
+
+    /* File drop area outline */
+    .file-drop-zone {
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
+    }
+    .file-drop-zone:hover, .file-drop-zone.drag-over {
+      border-color: var(--accent-color);
+      background: rgba(255, 255, 255, 0.02);
+    }
   </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen">
-  <div id="auth-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 transition-all">
-    <div class="bg-zinc-950 border border-zinc-800 p-8 rounded-3xl text-center shadow-2xl">
-      <h1 class="text-3xl font-black text-white mb-6 tracking-widest">PRODUCTION <span class="text-blue-500">CORE</span></h1>
-      <button onclick="document.getElementById('auth-gate').style.display='none';" class="bg-blue-600 hover:bg-blue-500 text-white font-black px-8 py-3 rounded-xl transition shadow-lg active:scale-95">INITIALIZE ENGINE</button>
+<body class="min-h-screen relative bg-zinc-950 text-zinc-100 flex flex-col justify-between">
+
+  <!-- ================= NOTIFICATION TOAST OVERLAY ================= -->
+  <div id="toast-container" class="fixed top-6 left-1/2 -translate-x-1/2 z-[110] flex flex-col gap-3 w-full max-w-sm px-4 pointer-events-none"></div>
+
+  <!-- ================= WELCOME SPLASH ================= -->
+  <div id="welcome-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-all duration-1000 ease-in-out">
+    <div class="text-center flex flex-col items-center">
+      <!-- Outer revolving graphic -->
+      <div class="relative w-28 h-28 mb-8 flex items-center justify-center">
+        <div class="absolute inset-0 rounded-full border border-dashed border-zinc-800 animate-logo"></div>
+        <div class="absolute inset-2 rounded-full border-2 border-dashed border-blue-500/20 animate-logo" style="animation-direction: reverse;"></div>
+        <div class="absolute inset-4 rounded-full border border-zinc-700 animate-logo"></div>
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/35">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+        </div>
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-widest text-white uppercase font-sans">
+        OBS COLLAB <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500 font-black">SYSTEM</span>
+      </h1>
+      <p class="text-xs text-zinc-500 mt-2 tracking-[0.3em] font-mono uppercase">Phase 2 Activated</p>
+      <div class="mt-8 flex gap-1 items-center justify-center">
+        <span class="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
+        <span class="text-[10px] text-zinc-400 font-mono">STANDBY... CONNECTING SERVICES</span>
+      </div>
     </div>
   </div>
 
-  <div class="max-w-[1900px] mx-auto flex flex-col gap-8">
-    <header class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 neon-panel">
-      <div><h2 class="text-2xl font-black tracking-widest text-white">CMS <span class="text-blue-500">ENGINE</span></h2><p class="text-[10px] text-zinc-500 tracking-widest uppercase">Master Control Center</p></div>
-      <div class="flex flex-wrap gap-4 items-center">
-         <div class="flex items-center gap-2 bg-black p-2 border border-zinc-800 rounded-lg">
-            <span class="text-[9px] text-zinc-500 font-bold uppercase hidden sm:block">PROFILES: </span>
-            <button onclick="saveProf('A')" class="text-[9px] px-3 py-1 bg-blue-900 hover:bg-blue-600 rounded font-bold transition">SAVE A</button>
-            <button onclick="loadProf('A')" class="text-[9px] px-3 py-1 bg-zinc-800 hover:bg-zinc-600 rounded font-bold transition">LOAD A</button>
-            <button onclick="saveProf('B')" class="text-[9px] px-3 py-1 bg-purple-900 hover:bg-purple-600 rounded font-bold transition">SAVE B</button>
-            <button onclick="loadProf('B')" class="text-[9px] px-3 py-1 bg-zinc-800 hover:bg-zinc-600 rounded font-bold transition">LOAD B</button>
-         </div>
-         <div class="flex items-center gap-2 bg-black p-2 border border-zinc-800 rounded-lg">
-            <div class="flex flex-col"><label class="text-[8px] text-zinc-500 uppercase font-bold">Border Radius (px)</label><input type="number" id="g-br" class="bg-transparent text-white font-bold w-16" value="12"></div>
-            <div class="w-px h-6 bg-zinc-800"></div>
-            <div class="flex flex-col"><label class="text-[8px] text-zinc-500 uppercase font-bold">Master Effects</label><select id="g-fx" class="bg-transparent text-white font-bold text-xs outline-none"><option value="none">Raw Output</option><option value="drop">Cinema Shadow</option><option value="neon">Neon Border Glow</option></select></div>
-         </div>
+  <!-- ================= LOCK SCREEN ================= -->
+  <div id="lock-screen" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#07080b] p-6 transition-all duration-700">
+    <div class="w-full max-w-sm premium-panel rounded-3xl p-8 flex flex-col relative overflow-hidden flex-shrink-0">
+      
+      <!-- Premium Design Accents -->
+      <div class="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-8 -left-8 w-40 h-40 bg-zinc-600/5 rounded-full blur-3xl"></div>
+
+      <!-- Icon & lock info -->
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 bg-white/5 border border-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 text-blue-500 shadow-md">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-white tracking-widest uppercase">Console Locked</h2>
+        <p class="text-xs text-zinc-500 mt-1 uppercase tracking-wider font-mono">Default PIN: 96159615</p>
+      </div>
+
+      <!-- Pin indicator slots -->
+      <div class="flex justify-center gap-3 mb-8">
+        <div class="pin-slot w-4 h-4 rounded-full border border-zinc-700 bg-transparent transition-all duration-200"></div>
+        <div class="pin-slot w-4 h-4 rounded-full border border-zinc-700 bg-transparent transition-all duration-200"></div>
+        <div class="pin-slot w-4 h-4 rounded-full border border-zinc-700 bg-transparent transition-all duration-200"></div>
+        <div class="pin-slot w-4 h-4 rounded-full border border-zinc-700 bg-transparent transition-all duration-200"></div>
+        <div class="pin-slot w-4 h-4 rounded-full border border-zinc-700 bg-transparent transition-all duration-200"></div>
+        <div class="pin-slot w-4 h-4 rounded-full border border-zinc-700 bg-transparent transition-all duration-200"></div>
+        <div class="pin-slot w-4 h-4 rounded-full border border-zinc-700 bg-transparent transition-all duration-200"></div>
+        <div class="pin-slot w-4 h-4 rounded-full border border-zinc-700 bg-transparent transition-all duration-200"></div>
+      </div>
+
+      <!-- Numeric Keypad Grid -->
+      <div class="grid grid-cols-3 gap-3 max-w-[280px] mx-auto w-full mb-6 text-zinc-400">
+        <button onclick="pressPin('1')" class="keypad-btn text-xl font-bold py-3.5 bg-zinc-900/40 border border-zinc-900 rounded-xl hover:bg-zinc-800/60 text-white">1</button>
+        <button onclick="pressPin('2')" class="keypad-btn text-xl font-bold py-3.5 bg-zinc-900/40 border border-zinc-900 rounded-xl hover:bg-zinc-800/60 text-white">2</button>
+        <button onclick="pressPin('3')" class="keypad-btn text-xl font-bold py-3.5 bg-zinc-900/40 border border-zinc-900 rounded-xl hover:bg-zinc-800/60 text-white">3</button>
+        <button onclick="pressPin('4')" class="keypad-btn text-xl font-bold py-3.5 bg-zinc-900/40 border border-zinc-900 rounded-xl hover:bg-zinc-800/60 text-white">4</button>
+        <button onclick="pressPin('5')" class="keypad-btn text-xl font-bold py-3.5 bg-zinc-900/40 border border-zinc-900 rounded-xl hover:bg-zinc-800/60 text-white">5</button>
+        <button onclick="pressPin('6')" class="keypad-btn text-xl font-bold py-3.5 bg-zinc-900/40 border border-zinc-900 rounded-xl hover:bg-zinc-800/60 text-white">6</button>
+        <button onclick="pressPin('7')" class="keypad-btn text-xl font-bold py-3.5 bg-zinc-900/40 border border-zinc-900 rounded-xl hover:bg-zinc-800/60 text-white">7</button>
+        <button onclick="pressPin('8')" class="keypad-btn text-xl font-bold py-3.5 bg-zinc-900/40 border border-zinc-900 rounded-xl hover:bg-zinc-800/60 text-white">8</button>
+        <button onclick="pressPin('9')" class="keypad-btn text-xl font-bold py-3.5 bg-zinc-900/40 border border-zinc-900 rounded-xl hover:bg-zinc-800/60 text-white">9</button>
+        <button onclick="pressPin('clear')" class="keypad-btn text-xs font-bold py-3.5 bg-transparent border border-transparent rounded-xl text-zinc-500 uppercase">Clear</button>
+        <button onclick="pressPin('0')" class="keypad-btn text-xl font-bold py-3.5 bg-zinc-900/40 border border-zinc-900 rounded-xl hover:bg-zinc-800/60 text-white">0</button>
+        <button onclick="pressPin('back')" class="keypad-btn text-sm font-bold py-3.5 bg-transparent border border-transparent rounded-xl flex items-center justify-center text-zinc-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Feedback status message info -->
+      <div id="pin-feedback" class="text-center h-5 text-xs font-semibold text-zinc-500 tracking-wider">
+        Secure Handshake Required
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN SYSTEM CONTAINER ================= -->
+  <div id="main-layout" class="hidden w-full max-w-4xl mx-auto px-4 md:px-6 py-6 flex-grow flex flex-col justify-between">
+    
+    <!-- Top System Header -->
+    <header class="flex items-center justify-between p-4 bg-zinc-900/60 rounded-3xl border border-zinc-800/80 mb-6 relative overflow-hidden backdrop-blur-xl">
+      <div class="flex items-center gap-3">
+        <!-- Pulse radar -->
+        <div id="brand-indicator" class="w-10 h-10 rounded-2xl dynamic-accent-bg flex items-center justify-center shadow-lg transition-colors duration-500">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-sm font-black tracking-widest text-white uppercase sm:text-base">OBS REMOTE CORE<span class="dynamic-accent-text font-extrabold text-[10px] ml-1 px-1.5 py-0.5 bg-white/5 rounded border border-white/10">V2.2 - Phase 2</span></h2>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <div id="db-indicator" class="blink-active bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div>
+            <p id="db-status-label" class="text-[9px] text-zinc-400 font-bold uppercase tracking-wider font-mono">Syncing Database...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="toggleLock();" class="p-2.5 bg-zinc-800/80 border border-zinc-700/50 rounded-xl hover:bg-zinc-700 hover:text-white transition active:scale-95 text-zinc-300" title="Lock System">
+          <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </button>
+        <button onclick="toggleSettingsModal();" class="p-2.5 dynamic-accent-bg border border-white/10 rounded-xl hover:opacity-90 text-white shadow-lg transition active:scale-95 flex items-center justify-center gap-1" title="Settings">
+          <svg class="w-4.5 h-4.5 animate-spin-slow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation-duration: 20s;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span class="text-xs font-bold font-mono tracking-wider ml-1 hidden sm:inline">CONTROL</span>
+        </button>
       </div>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-      <div class="lg:col-span-3 flex flex-col gap-6">
-        <div id="instant-container" class="bg-blue-900/10 border border-blue-500/30 rounded-2xl p-6 relative">
-          <!-- Populated by JS -->
+    <!-- Workspace Panel Controls and Dynamic Info -->
+    <main class="flex-grow flex flex-col justify-center">
+
+      <!-- TWO BIG MOBILE-FRIENDLY BUTTONS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-8">
+        
+        <!-- CARD 1: OBS CONTROL -->
+        <div onclick="openSection('obs-control')" class="group cursor-pointer bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800/80 hover:border-blue-500 rounded-3xl p-6 md:p-8 flex flex-col justify-between transition-all duration-300 relative overflow-hidden text-left shadow-lg">
+          <div class="absolute -right-16 -top-16 w-32 h-32 bg-blue-600/10 rounded-full blur-2xl group-hover:bg-blue-600/20 transition-all"></div>
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold tracking-tight text-white mb-2">OBS Control</h3>
+            <p class="text-sm text-zinc-400">Launch live trigger slots, upload assets to the broadcast deck, config entry animations, set timers, and broadcast real-time audio cues securely from any device.</p>
+          </div>
+          <div class="flex items-center gap-2 mt-6">
+            <span class="text-xs text-blue-400 font-extrabold uppercase tracking-widest group-hover:text-white transition">Active Hub Page</span>
+            <svg class="w-4 h-4 text-blue-400 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+            </svg>
+          </div>
         </div>
-        <div id="slots-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          <!-- Populated by JS -->
+
+        <!-- CARD 2: OBS DISPLAY -->
+        <div onclick="openSection('obs-display')" class="group cursor-pointer bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800/80 hover:border-emerald-500 rounded-3xl p-6 md:p-8 flex flex-col justify-between transition-all duration-300 relative overflow-hidden text-left shadow-lg">
+          <div class="absolute -right-16 -top-16 w-32 h-32 bg-emerald-600/10 rounded-full blur-2xl group-hover:bg-emerald-600/20 transition-all"></div>
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold tracking-tight text-white mb-2">OBS Display</h3>
+            <p class="text-sm text-zinc-400">Launch overlays directly or view mirror monitors on local screens of the broadcast canvas output. Real-time synchronicity ensures zero lag checks.</p>
+          </div>
+          <div class="flex items-center gap-2 mt-6">
+            <span class="text-xs text-emerald-400 font-extrabold uppercase tracking-widest group-hover:text-white transition">Open Monitor Stage</span>
+            <svg class="w-4 h-4 text-emerald-400 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+            </svg>
+          </div>
         </div>
+
       </div>
 
-      <div class="lg:col-span-1 bg-zinc-950 border border-zinc-800 rounded-2xl p-6 sticky top-8 flex flex-col gap-6 shadow-xl">
-        <div class="flex flex-col items-center">
-           <h3 class="text-xs tracking-widest text-zinc-400 font-black uppercase mb-4 flex items-center gap-2"><div class="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div> LIVE MONITOR VIEW</h3>
-           <div class="w-full aspect-video bg-black border border-zinc-800 rounded-lg flex items-center justify-center p-2 shadow-inner">
-              <div id="mon-box" class="relative flex transition-opacity duration-300 items-center justify-center bg-zinc-900 overflow-hidden" style="opacity:0;">
-                 <img id="mon-img" src="" style="width:100%;height:100%;object-fit:contain;position:absolute;z-index:1;">
-                 <div id="mon-txt" class="absolute bottom-2 text-[10px] text-white font-black uppercase z-10" style="text-shadow: 0 2px 4px black"></div>
+      <!-- ================= DYNAMIC SECTION: OBS CONTROL HUB ================= -->
+      <section id="obs-control-section" class="tab-section bg-zinc-900/60 border border-zinc-800/60 rounded-3xl p-6 mb-6">
+        
+        <!-- VIEW A: SLOTS LIST GRID -->
+        <div id="slots-list-view" class="space-y-6">
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-4">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 dynamic-accent-bg rounded-full"></span>
+              <h4 class="text-lg font-bold tracking-tight text-white font-sans uppercase">Broadcast Slots Matrix</h4>
+            </div>
+            <button onclick="createNewCustomSlot();" class="px-3.5 py-1.5 dynamic-accent-bg text-white hover:opacity-90 transition rounded-xl text-xs font-black tracking-wider uppercase flex items-center gap-1 shadow-lg shadow-blue-500/10">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+              </svg>
+              Add New Slot
+            </button>
+          </div>
+
+          <!-- Live Broadcast Telemetry row -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Active Casting Slot status card -->
+            <div class="bg-black/40 p-4 rounded-2xl border border-zinc-800/60 flex items-center justify-between shadow-inner">
+              <div class="min-w-0">
+                <label class="text-[9px] font-bold text-zinc-500 uppercase font-mono tracking-wider">Active Stream Cast</label>
+                <div id="active-cast-label" class="mt-1 text-xs font-black text-zinc-400 font-sans uppercase truncate">NOT BROADCASTING</div>
               </div>
-           </div>
-           <p class="text-[9px] font-mono text-zinc-500 mt-3 text-center uppercase">Provides simulated scale reference mapping to the active Broadcast renderer.</p>
+              <div id="active-cast-pulse" class="w-3.5 h-3.5 rounded-full bg-zinc-800 shrink-0 transition-all duration-300"></div>
+            </div>
+            <!-- Total Slots created -->
+            <div class="bg-black/40 p-4 rounded-2xl border border-zinc-800/60">
+              <label class="text-[9px] font-bold text-zinc-500 uppercase font-mono tracking-wider">Saved Layout Slots</label>
+              <div id="total-slots-lbl" class="mt-1 text-sm font-extrabold text-white font-mono">0 Configured</div>
+            </div>
+            <!-- Live unit feedback connections -->
+            <div class="bg-black/40 p-4 rounded-2xl border border-zinc-800/60 flex items-center justify-between">
+              <div>
+                <label class="text-[9px] font-bold text-zinc-500 uppercase font-mono tracking-wider">Live System Monitors</label>
+                <div id="viewers-count" class="mt-1 text-sm font-extrabold text-white font-mono">0 active displays</div>
+              </div>
+              <span class="text-[8px] bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-black uppercase font-mono tracking-wider animate-pulse shrink-0">ACTIVE</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Slots Grid Parent -->
+          <div id="slots-grid-parent" class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+            <div class="col-span-full text-center py-10 text-zinc-500 text-xs font-medium bg-black/25 rounded-2xl border border-zinc-800/50">
+              Initializing Layout Designer Slots Deck...
+            </div>
+          </div>
         </div>
-        <button id="clear-btn" class="w-full bg-red-900/80 hover:bg-red-700 text-white font-black py-4 rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] flex justify-center items-center gap-2 transition active:scale-95">
-          <span class="w-4 h-4 bg-white rounded-full flex items-center justify-center text-red-800 text-[10px] animate-pulse">✖</span> DISENGAGE OVERLAYS
-        </button>
+
+        <!-- VIEW B: CANVAS CUSTOMIZER AND EDITOR -->
+        <div id="slots-editor-view" class="hidden space-y-6">
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-4">
+            <div class="flex items-center gap-2">
+              <button onclick="exitSlotEditorAndSave();" class="p-1.5 bg-zinc-850 border border-zinc-750 rounded-lg text-zinc-300 hover:text-white transition active:scale-95 flex items-center pr-2.5 text-[10px] font-extrabold uppercase tracking-widest gap-1 select-none">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+                </svg>
+                EXIT EDITOR
+              </button>
+              <h4 class="text-xs font-bold text-zinc-400 uppercase font-mono tracking-wider">Workspace Canvas Customizer</h4>
+            </div>
+            <span id="editing-slot-title-badge" class="text-[9px] bg-blue-600/15 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded font-black font-sans uppercase tracking-widest">SLOT 1</span>
+          </div>
+
+          <!-- Canvas Stage row and Touch Drag and Drop Interface -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-black text-zinc-400 uppercase font-mono tracking-widest">Live Studio Aspect Container</label>
+              <span class="text-[10px] text-zinc-500 font-mono">Relative text position: <span id="editor-text-x-lbl" class="text-zinc-300 font-bold font-mono">50%</span>, <span id="editor-text-y-lbl" class="text-zinc-300 font-bold font-mono">80%</span></span>
+            </div>
+
+            <!-- Frame Box with Grid Blueprint pattern -->
+            <div class="bg-black/90 aspect-video rounded-3xl border border-zinc-800/80 relative flex items-center justify-center p-4 overflow-hidden" id="canvas-stage-wrapper" style="background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px); background-size: 16px 16px; min-height: 220px;">
+              <!-- Crosshair corner lines as aesthetic touch -->
+              <div class="absolute top-3 left-3 w-4 h-4 border-t border-l border-zinc-800"></div>
+              <div class="absolute top-3 right-3 w-4 h-4 border-t border-r border-zinc-800"></div>
+              <div class="absolute bottom-3 left-3 w-4 h-4 border-b border-l border-zinc-800"></div>
+              <div class="absolute bottom-3 right-3 w-4 h-4 border-b border-r border-zinc-800"></div>
+              
+              <!-- Content representation box (simulating the slot inner bevel & shadow scaling inside overlay) -->
+              <div id="canvas-stage-content" class="relative overflow-hidden transition-all flex items-center justify-center border border-dashed border-zinc-700 bg-zinc-900/45" style="width: 80%; height: 60%; max-width: 100%; max-height: 100%;">
+                <!-- Background mock image -->
+                <img id="canvas-stage-image" class="w-full h-full object-contain pointer-events-none opacity-90" src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40'%3E%3Crect width='120' height='40' fill='%2312141c'/%3E%3C/svg%3E">
+                
+                <!-- Real-time Touch draggable overlay text -->
+                <div id="canvas-stage-text" class="absolute select-none cursor-move text-white font-extrabold uppercase text-center break-all whitespace-nowrap active:scale-95 transition-transform" style="left: 50%; top: 80%; transform: translate(-50%, -50%); text-shadow: 0 4px 10px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.8); z-index: 5;">
+                  SAMPLE TEXT OVERLAY VALUE
+                </div>
+              </div>
+            </div>
+            <p class="text-[10px] text-zinc-500 font-mono text-center leading-relaxed">☝️ Touch-drag or click-drag the text overlay to position it freely on the canvas representation. Width and height sliders are optimized below.</p>
+          </div>
+
+          <!-- Configuration Panels Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-5 pt-3">
+            
+            <!-- Left Panel: Text & Graphic Bounding -->
+            <div class="md:col-span-7 bg-black/40 p-5 rounded-3xl border border-zinc-800/60 space-y-4">
+              <!-- Text content properties -->
+              <div class="space-y-3.5">
+                <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+                  <h5 class="text-[10px] font-black text-zinc-400 uppercase tracking-widest font-mono">1. Overlay Text Customization</h5>
+                  <span class="text-[8px] bg-blue-600/15 text-blue-400 px-2 py-0.5 rounded font-mono font-bold leading-none uppercase">Parameters</span>
+                </div>
+                
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">Overlay Title content</label>
+                  <input type="text" id="editor-text-overlay" oninput="syncEditorText(this.value);" class="glass-input p-3 rounded-xl text-xs outline-none w-full bg-[#0c0d12] border-zinc-800 font-sans" placeholder="Type banner overlay text...">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">Unlimited Color Picker</label>
+                    <div class="flex items-center gap-2 bg-[#0c0d12] border border-zinc-800 p-2 rounded-xl">
+                      <input type="color" id="editor-text-color" oninput="syncEditorTextColor(this.value);" class="w-6 h-6 bg-transparent border-0 rounded cursor-pointer leading-none shrink-0 outline-none">
+                      <input type="text" id="editor-text-color-hex" oninput="syncEditorTextColor(this.value);" class="w-full bg-transparent text-[11px] outline-none text-zinc-300 font-mono" placeholder="#ffffff">
+                    </div>
+                  </div>
+
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">True Fonts Selection</label>
+                    <select id="editor-text-font" onchange="syncEditorTextFont(this.value);" class="glass-input p-2.5 rounded-xl text-xs outline-none w-full bg-[#0c0d12] border-zinc-800 font-sans">
+                      <option value="'Outfit', sans-serif">Outfit (Default Modern)</option>
+                      <option value="'Inter', sans-serif">Inter (Swiss Clean)</option>
+                      <option value="'Space Grotesk', sans-serif">Space Grotesk (Tech Future)</option>
+                      <option value="'Playfair Display', serif">Playfair (Serif Portrait)</option>
+                      <option value="'JetBrains Mono', monospace">JetBrains Mono (Technical Code)</option>
+                      <option value="'Cinzel', serif">Cinzel (Royal Display)</option>
+                      <option value="'Cinzel Decorative', serif">Cinzel Decor (Aesthetic)</option>
+                      <option value="'Syncopate', sans-serif">Syncopate (Wide Brutalist)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                  <div class="flex justify-between items-center text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">
+                    <span>Full Font Size Slider</span>
+                    <span id="editor-font-size-lbl" class="text-white font-mono">36px</span>
+                  </div>
+                  <div class="flex items-center gap-3 bg-[#0c0d12]/50 border border-zinc-800 p-2 rounded-xl">
+                    <input type="range" id="editor-text-fontsize" min="12" max="120" value="36" oninput="syncEditorTextSize(this.value);" class="w-full h-1 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Graphic image file selector -->
+              <div class="space-y-3.5 pt-3">
+                <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+                  <h5 class="text-[10px] font-black text-zinc-400 uppercase tracking-widest font-mono">2. Image Setup & Graphic Bounding</h5>
+                  <span class="text-[8px] bg-emerald-600/15 text-emerald-400 px-2 py-0.5 rounded font-mono font-bold leading-none uppercase">Resize</span>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">Custom slot asset source</label>
+                  <div class="grid grid-cols-12 gap-2">
+                    <button onclick="triggerSlotImageFile();" class="col-span-4 bg-zinc-800 border border-zinc-700/80 hover:bg-zinc-750 font-extrabold py-2.5 px-2 rounded-xl text-[9px] uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1 shrink-0">
+                      <svg class="w-3.5 h-3.5 text-zinc-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                      </svg>
+                      Select Image
+                    </button>
+                    <input type="text" id="editor-image-url" oninput="syncEditorImage(this.value);" class="col-span-8 glass-input p-2.5 rounded-xl text-xs outline-none bg-[#0c0d12] border-zinc-800 font-mono truncate" placeholder="Enter remote URL or select uploaded photo">
+                  </div>
+                  <input type="file" id="slot-file-input" class="hidden" accept="image/*" onchange="processSlotImageUpload(this.files);">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="flex flex-col gap-1.5">
+                    <div class="flex justify-between items-center text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">
+                      <span>Canvas Width (px)</span>
+                      <span id="editor-width-lbl" class="text-white font-mono">800px</span>
+                    </div>
+                    <div class="flex items-center gap-3 bg-[#0c0d12]/50 border border-zinc-800 p-2 rounded-xl">
+                      <input type="range" id="editor-image-width" min="100" max="1500" value="800" oninput="syncEditorWidth(this.value);" class="w-full h-1 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
+                  </div>
+
+                  <div class="flex flex-col gap-1.5">
+                    <div class="flex justify-between items-center text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">
+                      <span>Canvas Height (px)</span>
+                      <span id="editor-height-lbl" class="text-white font-mono">300px</span>
+                    </div>
+                    <div class="flex items-center gap-3 bg-[#0c0d12]/50 border border-zinc-800 p-2 rounded-xl">
+                      <input type="range" id="editor-image-height" min="80" max="1200" value="300" oninput="syncEditorHeight(this.value);" class="w-full h-1 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Panel: Timers, Animations & Actions -->
+            <div class="md:col-span-5 bg-black/40 p-5 rounded-3xl border border-zinc-800/60 flex flex-col justify-between space-y-4">
+              <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+                  <h5 class="text-[10px] font-black text-zinc-400 uppercase tracking-widest font-mono">3. Animations & Timer Matrix</h5>
+                  <span class="text-[8px] bg-purple-600/15 text-purple-400 px-2 py-0.5 rounded font-mono font-bold leading-none uppercase font-mono">Matrix</span>
+                </div>
+
+                <div class="space-y-3.5">
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">Entrance 15 In-Animations</label>
+                    <select id="editor-in-animation" onchange="previewSelectedInAnimation();" class="glass-input p-3 rounded-xl text-xs outline-none w-full bg-[#0c0d12] border-zinc-800 font-sans">
+                      <option value="anim-cinematic">1. Cinematic Zoom Play</option>
+                      <option value="anim-3d-flip">2. 3D Card Flip</option>
+                      <option value="anim-elastic-bounce">3. Elastic Bounce Entry</option>
+                      <option value="anim-neon-fade">4. Glow Neon Fade</option>
+                      <option value="anim-bottom-roller">5. Bottom Roller Pitch</option>
+                      <option value="anim-skew-stretch">6. Skew Stretch Swipe</option>
+                      <option value="anim-top-drop">7. Top Anchor Dropped</option>
+                      <option value="anim-flash-glitch">8. Glitch Chromatic Aberration</option>
+                      <option value="anim-diagonal-wave">9. Diagonal Corner Slide</option>
+                      <option value="anim-heartbeat">10. Radial Heartbeat Scale</option>
+                      <option value="anim-split-horizon">11. Horizontal Horizon Split</option>
+                      <option value="anim-blur-focus">12. Blur Focused Reveal</option>
+                      <option value="anim-spiral-vortex">13. Vortex Spiral Whirlwind</option>
+                      <option value="anim-elegant-curtain">14. Side Slate Curtain</option>
+                      <option value="anim-corner-snap">15. Snapping Pivot Hook</option>
+                    </select>
+                  </div>
+
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">Exit 15 Out-Animations</label>
+                    <select id="editor-out-animation" class="glass-input p-3 rounded-xl text-xs outline-none w-full bg-[#0c0d12] border-zinc-800 font-sans">
+                      <option value="exit-fade-out">1. Normal Fade Away</option>
+                      <option value="exit-slide-down">2. Down slide Drop</option>
+                      <option value="exit-zoom-out">3. Scale Zoom Collapse</option>
+                      <option value="exit-3d-flip">4. 3D Card Spin Out</option>
+                      <option value="exit-bounce-out">5. Bounce Soft Collapse</option>
+                      <option value="exit-slide-up">6. Top Escape Slide</option>
+                      <option value="exit-slide-left">7. Left Escape Slide</option>
+                      <option value="exit-slide-right">8. Right Escape Slide</option>
+                      <option value="exit-skew-out">9. Skew Stretch Out</option>
+                      <option value="exit-glitch-out">10. Glitch Distortion Exit</option>
+                      <option value="exit-blur-out">11. Blur Dispersion Out</option>
+                      <option value="exit-spiral-out">12. Vortex Spiral Collapse</option>
+                      <option value="exit-unsplit-out">13. Horizon Squeeze Squeeze</option>
+                      <option value="exit-snap-out">14. Snap Fold Retreat</option>
+                      <option value="exit-elastic-out">15. Elastic Spring Exit</option>
+                    </select>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="flex flex-col gap-1.5">
+                      <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono" title="Accepts inputs in seconds or minutes e.g., '120s' or '2m'">Countdown Timer</label>
+                      <input type="text" id="editor-duration" class="glass-input p-2.5 rounded-xl text-xs font-mono outline-none w-full bg-[#0c0d12] border-zinc-800 text-center" placeholder="e.g. 120s or 2m" value="10s">
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                      <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">Bevel Radius (px)</label>
+                      <input type="number" id="editor-borderradius" oninput="syncEditorRadius(this.value);" class="glass-input p-2.5 rounded-xl text-xs font-mono outline-none w-full bg-[#0c0d12] border-zinc-800 text-center" min="0" max="100" value="12">
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="flex flex-col gap-1.5">
+                      <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">Bevel Shadow FX</label>
+                      <select id="editor-shadow-effect" onchange="syncEditorShadow(this.value);" class="glass-input p-2.5 rounded-xl text-xs outline-none w-full bg-[#0c0d12] border-zinc-800 text-center font-sans">
+                        <option value="none">Normal (None)</option>
+                        <option value="drop">Cinematic Drop</option>
+                        <option value="neon">Neon Active Blue</option>
+                      </select>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                      <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider font-mono">Audio Cue Trigger</label>
+                      <select id="editor-audio" class="glass-input p-2.5 rounded-xl text-xs outline-none w-full bg-[#0c0d12] border-zinc-800 text-center font-sans">
+                        <option value="true">🔊 Swoosh ON</option>
+                        <option value="false">🔇 Muted OFF</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action buttons row -->
+              <div class="pt-4 space-y-2.5">
+                <button onclick="writeCurrentEditorToDatabase();" class="w-full dynamic-accent-bg hover:opacity-90 text-white font-extrabold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/10 select-none">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Save independently
+                </button>
+                <div class="flex gap-2 w-full">
+                  <button id="editor-active-cast-btn" onclick="goLiveDirectFromEditor();" class="flex-grow bg-green-600 hover:bg-green-500 text-white font-black py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest transition active:scale-95 flex items-center justify-center gap-1.5 shadow-md shadow-green-600/10 select-none">
+                    <svg class="w-4 h-4 animate-pulse shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 001.32-2.24 14.99 14.99 0 00-2.33-4.83m0 0a16.6 16.6 0 012.33-4.83 14.99 14.99 0 01-1.32-2.24m-12 11.2a6 6 0 005.84-7.38v4.8m0 0a16.61 16.61 0 00-2.33 4.83"/>
+                    </svg>
+                    CAST LIVE
+                  </button>
+                  <button onclick="clearLiveBroadcast();" class="p-3 bg-red-600/10 border border-red-500/20 hover:bg-red-650 hover:text-white rounded-xl text-[10px] font-extrabold text-red-400 uppercase tracking-wider transition active:scale-95" title="Deactivate and Clear Stream Display Overlay Screen">
+                    OFFLINE
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick select media gallery picker inline -->
+          <div class="bg-black/25 p-4 rounded-3xl border border-zinc-800/60 mt-3">
+            <label class="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wider block mb-2 font-mono">⚡ Quick-Apply background from Media Library Gallery</label>
+            <div id="quick-media-select-parent" class="flex gap-2.5 overflow-x-auto pb-1 max-w-full scrollbar-thin">
+              <span class="text-xs text-zinc-600 py-1 font-mono">No gallery assets. Click &apos;Console Preferences&apos; to upload images.</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= DYNAMIC SECTION: OBS MIRROR DISPLAY ================= -->
+      <section id="obs-display-section" class="tab-section bg-zinc-900/60 border border-zinc-800/60 rounded-3xl p-6 mb-6">
+        <div class="flex items-center justify-between border-b border-zinc-800/80 pb-4 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
+            <h4 class="text-sm font-black tracking-widest text-white uppercase font-sans">Aesthetic TV Broadcast Monitor</h4>
+          </div>
+          <span class="text-[10px] font-mono text-zinc-500 uppercase">Synchronized Television Frame</span>
+        </div>
+
+        <!-- TV-like monitor enclosure -->
+        <div class="relative max-w-2xl mx-auto">
+          <!-- Outer silver/dark metallic TV frame Bezel with subtle drop shadows -->
+          <div class="bg-gradient-to-b from-zinc-800 via-zinc-900 to-black p-4 rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8),_0_0_1px_1px_rgba(255,255,255,0.15)_inset] border-t border-zinc-700/50">
+            <!-- Screen Area with Glass shine and shadow -->
+            <div id="tv-screen-container" class="aspect-video bg-zinc-950 rounded-2xl relative overflow-hidden border border-zinc-950 flex flex-col items-center justify-center">
+              
+              <!-- Static Snow or Signal Lost state, overlayed when there's no broadcast or standby -->
+              <div id="tv-no-signal" class="absolute inset-0 flex flex-col items-center justify-center bg-black transition-opacity duration-300 z-10">
+                <!-- Retro visual static screen lines background (optional but highly aesthetic) -->
+                <div class="absolute inset-0 opacity-[0.04] pointer-events-none" style="background-image: repeating-linear-gradient(0deg, #fff, #fff 1px, transparent 1px, transparent 2px); background-size: 100% 4px;"></div>
+                <div class="w-16 h-16 rounded-full bg-zinc-900/40 border border-zinc-800/50 flex items-center justify-center text-zinc-650 mb-3 animate-pulse">
+                  <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"/>
+                  </svg>
+                </div>
+                <h5 class="text-xs text-zinc-400 font-extrabold uppercase tracking-widest leading-none font-sans">NO BROADCAST DETECTED</h5>
+                <p class="text-[9px] text-zinc-600 mt-1 font-mono uppercase">WAITING FOR CAST SIGNAL... STANDBY</p>
+                <div class="mt-4 flex gap-1 items-center">
+                  <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                  <span class="text-[8px] font-mono text-zinc-500 uppercase">AWAITING TRIGGER</span>
+                </div>
+              </div>
+
+              <!-- Live Simulation Stage screen when broadcasting -->
+              <div id="tv-live-stage" class="absolute inset-0 hidden items-center justify-center p-4 bg-[#0a0d14] transition-opacity duration-300">
+                <!-- Corner Grid Coordinates mockup overlay for TV aesthetic -->
+                <div class="absolute top-3 left-3 text-[8px] font-mono text-emerald-400/40 select-none">CH: 48 · RT-M</div>
+                <div class="absolute top-3 right-3 text-[8px] font-mono text-emerald-400/40 select-none flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse inline-block"></span>
+                  <span class="font-extrabold text-red-500">LIVE FEED</span>
+                </div>
+                
+                <div class="absolute bottom-3 left-3 text-[8px] font-mono text-emerald-400/40 select-none">MONITOR SIMULATION ACTIVE</div>
+                <div class="absolute bottom-3 right-3 text-[8px] font-mono text-emerald-400/40 select-none" id="tv-countdown-text">FADE OUT: none</div>
+
+                <!-- Synchronized Simulated Box in ratio with proper scaling, centered on screen -->
+                <div id="tv-stage-content" class="relative overflow-hidden flex items-center justify-center transition-all bg-zinc-900 duration-300 shadow-2xl" style="width: 80%; height: 60%;">
+                  <!-- Background image -->
+                  <img id="tv-stage-image" class="w-full h-full object-contain pointer-events-none opacity-90" src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40'%3E%3Crect width='120' height='40' fill='%2312141c'/%3E%3C/svg%3E">
+                  <!-- Text Overlay positioned precisely -->
+                  <div id="tv-stage-text" class="absolute select-none text-white font-extrabold uppercase text-center break-all whitespace-nowrap" style="left: 50%; top: 80%; transform: translate(-50%, -50%); text-shadow: 0 4px 10px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.8);">
+                    ACTIVE OVERLAY
+                  </div>
+                </div>
+              </div>
+
+              <!-- Classic Screen Curved Overlay Reflex highlight/shine -->
+              <div class="absolute inset-0 pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-white/10 mix-blend-overlay z-20"></div>
+            </div>
+
+            <!-- TV Controls / Brand bar beneath screen -->
+            <div class="flex items-center justify-between mt-3 px-2 text-zinc-500 text-[10px] font-mono select-none">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.5)]" id="tv-status-led"></span>
+                <span class="font-black text-zinc-400 tracking-wider">T-SPORTS MONITOR</span>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="clearLiveBroadcast();" class="text-[9px] bg-red-500/10 border border-red-500/20 text-red-400 px-2 py-0.5 rounded-md hover:bg-red-500 hover:text-white transition uppercase font-bold tracking-wider">FORCE OFF</button>
+                <button onclick="window.previewSelectedInAnimation();" class="text-[9px] bg-zinc-850 border border-zinc-750 text-zinc-300 px-2.5 py-0.5 rounded-md hover:text-white transition uppercase font-bold tracking-wider">TEST ANIM</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Solid plastic stand representing premium desktop TV aesthetics -->
+          <div class="w-32 h-3 bg-zinc-850 mx-auto rounded-b-xl border-t border-zinc-750 shadow-md"></div>
+          <div class="w-24 h-4 bg-zinc-900 mx-auto rounded-b-md border-t border-zinc-800 shadow-lg"></div>
+
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-5">
+            <a href="/obs.html" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:brightness-110 text-white font-extrabold rounded-xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 text-xs uppercase tracking-widest transition active:scale-95">
+              Launch Overlay (.html)
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
+              </svg>
+            </a>
+            <button onclick="copyOBSScreenLink();" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white font-extrabold rounded-xl shadow-lg text-xs uppercase tracking-widest transition active:scale-95">
+              📋 Copy OBS Screen Link
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Footer Diagnostics -->
+    <footer class="flex flex-col sm:flex-row justify-between items-center border-t border-zinc-900 pt-5 mt-6 gap-3 text-zinc-500 text-[11px] font-mono">
+      <div>
+        ACTIVE PROJECT ID: <span class="text-zinc-400 font-semibold">cricket-48711</span>
+      </div>
+      <div>
+        SECURE PASSCODE VALIDATION STATE: <span id="pwd-state-label" class="text-green-500 font-bold uppercase">AUTHORIZED</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ================= SETTINGS DRAWER MODAL (SCROLLABLE & UPGRADED) ================= -->
+  <div id="settings-modal" class="hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex justify-end transition-opacity duration-300">
+    <div class="w-full max-w-lg h-full bg-[#08090d] border-l border-zinc-800/80 p-6 md:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+      
+      <!-- Scrolling Body Area for all Premium customization utilities -->
+      <div class="flex-grow overflow-y-auto pr-1 space-y-8 scrollbar-thin">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-zinc-900 pb-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <h3 class="text-base font-bold text-white uppercase tracking-wider">Console Preferences</h3>
+          </div>
+          <button onclick="toggleSettingsModal();" class="p-1.5 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 hover:text-white transition">
+            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Section 1: Dynamic Theme & Styling Tools -->
+        <div class="bg-zinc-900/40 p-5 rounded-2xl border border-zinc-850/85 space-y-4">
+          <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+            <h4 class="text-xs font-black tracking-widest text-zinc-400 uppercase font-mono">1. Dynamic Styling Styler</h4>
+            <span class="text-[9px] bg-blue-600/10 text-blue-400 border border-blue-500/20 px-1.5 py-0.5 rounded font-mono">REALTIME</span>
+          </div>
+
+          <!-- Color Customizer Pickers -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="flex flex-col gap-1.5 bg-black/40 p-2.5 rounded-xl border border-zinc-950">
+              <label class="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Accent Color</label>
+              <div class="flex items-center gap-2 mt-1">
+                <input type="color" id="theme-color-accent" oninput="applyCustomAccent(this.value);" class="w-7 h-7 bg-transparent border-0 rounded cursor-pointer">
+                <span id="theme-color-accent-lbl" class="text-[10px] font-mono text-zinc-400 uppercase">#3b82f6</span>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5 bg-black/40 p-2.5 rounded-xl border border-zinc-950">
+              <label class="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Canvas BG</label>
+              <div class="flex items-center gap-2 mt-1">
+                <input type="color" id="theme-color-bg" oninput="applyCustomBg(this.value);" class="w-7 h-7 bg-transparent border-0 rounded cursor-pointer">
+                <span id="theme-color-bg-lbl" class="text-[10px] font-mono text-zinc-400 uppercase">#030303</span>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5 bg-black/40 p-2.5 rounded-xl border border-zinc-950">
+              <label class="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Text Color</label>
+              <div class="flex items-center gap-2 mt-1">
+                <input type="color" id="theme-color-text" oninput="applyCustomText(this.value);" class="w-7 h-7 bg-transparent border-0 rounded cursor-pointer">
+                <span id="theme-color-text-lbl" class="text-[10px] font-mono text-zinc-400 uppercase">#f4f4f5</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fast Preset Palettes Swatches -->
+          <div>
+            <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block mb-2">Preset Swatch themes</label>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="applyPresetTheme('#3b82f6', '#030303', '#f4f4f5');" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] text-zinc-300 hover:border-zinc-700 transition active:scale-95">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Sapphire Classic
+              </button>
+              <button onclick="applyPresetTheme('#10b981', '#060a0f', '#e6f4ea');" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] text-zinc-300 hover:border-zinc-700 transition active:scale-95">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Emerald Mint
+              </button>
+              <button onclick="applyPresetTheme('#f43f5e', '#0a0203', '#ffe4e6');" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] text-zinc-300 hover:border-zinc-700 transition active:scale-95">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Cyber Crimson
+              </button>
+              <button onclick="applyPresetTheme('#e11d48', '#111111', '#ffffff');" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] text-zinc-300 hover:border-zinc-700 transition active:scale-95">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#e11d48]"></span> T Sports Red
+              </button>
+              <button onclick="applyPresetTheme('#00f2fe', '#08080f', '#e0f7fa');" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] text-zinc-300 hover:border-zinc-700 transition active:scale-95">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Quantum Cyan
+              </button>
+              <button onclick="applyPresetTheme('#d946ef', '#09050d', '#fae8ff');" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] text-zinc-300 hover:border-zinc-700 transition active:scale-95">
+                <span class="w-2.5 h-2.5 rounded-full bg-fuchsia-500"></span> Luxury Orchid
+              </button>
+            </div>
+          </div>
+
+          <!-- Font Styler presets and scale options -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Font Family Preset</label>
+              <select id="styler-font-family" onchange="applyCustomFont(this.value);" class="glass-input p-2.5 rounded-xl text-xs outline-none w-full bg-[#0d0f14] border-zinc-800">
+                <option value="'Outfit', sans-serif">Outfit (Default Modern)</option>
+                <option value="'Inter', sans-serif">Inter (Swiss Clean)</option>
+                <option value="'Space Grotesk', sans-serif">Space Grotesk (Tech Future)</option>
+                <option value="'Playfair Display', serif">Playfair (Serif Portrait)</option>
+                <option value="'JetBrains Mono', monospace">JetBrains Mono (Technical Code)</option>
+                <option value="'Cinzel', serif">Cinzel (Royal Display)</option>
+                <option value="'Cinzel Decorative', serif">Cinzel Decor (Aesthetic)</option>
+                <option value="'Syncopate', sans-serif">Syncopate (Wide Brutalist)</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Font size scale</label>
+              <div class="flex items-center gap-3">
+                <input type="range" id="styler-font-size" min="13" max="22" value="16" oninput="applyCustomFontSize(this.value);" class="w-full h-1 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                <span id="styler-font-size-lbl" class="text-xs font-bold shrink-0 font-mono tracking-wider">16px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Media Gallery Sync Manager (3 tabs inside single folder structure) -->
+        <div class="bg-zinc-900/40 p-5 rounded-2xl border border-zinc-850/85 space-y-4">
+          <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+            <h4 class="text-xs font-black tracking-widest text-zinc-400 uppercase font-mono">2. Media Gallery Core</h4>
+            <span class="text-[9px] bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono">SECURE REALTIME</span>
+          </div>
+
+          <!-- Drag and Drop upload zone -->
+          <div id="media-drop-zone" class="file-drop-zone rounded-xl p-5 text-center cursor-pointer flex flex-col items-center justify-center relative overflow-hidden bg-black/30 border border-dashed border-zinc-800 hover:border-[var(--accent-color)] transition-all">
+            <input type="file" id="media-file-input" class="hidden" multiple accept="image/*,video/*,audio/*">
+            <svg class="w-7 h-7 text-zinc-500 mb-1.5 dynamic-accent-text transition" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/>
+            </svg>
+            <h5 class="text-xs font-bold text-zinc-300">Drag or click to upload files</h5>
+            <p class="text-[9px] text-zinc-500 mt-1 uppercase max-w-xs mx-auto leading-relaxed">Encodes local clips to Base64 directly inside Firebase (Supports up to 10MB!).</p>
+            <div id="upload-progress-bar" class="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-emerald-500 w-0 transition-all duration-300"></div>
+          </div>
+
+          <!-- Direct Link Sync (Adhering to No size/type restrictions) -->
+          <div class="bg-black/40 p-3.5 rounded-xl border border-zinc-900/80 flex flex-col gap-2" onclick="event.stopPropagation();">
+            <label class="text-[9px] text-zinc-500 font-bold uppercase tracking-wider font-mono">Or Sync Direct Web Link (Unrestricted File Size)</label>
+            <div class="flex gap-2">
+              <input type="text" id="media-url-input" class="glass-input p-2 rounded-lg text-xs outline-none bg-[#0a0c10] border-zinc-800 text-zinc-200 flex-1 hover:border-zinc-750 focus:border-[var(--accent-color)] transition font-sans" placeholder="Paste direct HTTP(S) URL prefix address...">
+              <button onclick="addMediaUrl();" class="px-3 bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700 text-[10px] font-black uppercase tracking-wider rounded-lg transition active:scale-95 flex items-center justify-center">Link URL</button>
+            </div>
+            <p class="text-[8px] text-zinc-500 uppercase tracking-wide">Syncs massive HD videos, YouTube streams, or audio assets with zero database overhead.</p>
+          </div>
+
+          <!-- 3 Interactive Category Tabs (Single folder under media_gallery) -->
+          <div class="flex gap-1.5 bg-black p-1 rounded-xl border border-zinc-900">
+            <button onclick="setMediaActiveTab('images');" id="media-tab-btn-images" class="gallery-tab-btn active flex-1 py-2 text-center text-[10px] font-bold uppercase rounded-lg border border-transparent transition flex items-center justify-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375 0 11-.75 0 .375 0 01.75 0z"/>
+              </svg>
+              Images (<span id="count-images-badge">0</span>)
+            </button>
+            <button onclick="setMediaActiveTab('videos');" id="media-tab-btn-videos" class="gallery-tab-btn flex-1 py-2 text-center text-[10px] font-bold uppercase rounded-lg border border-transparent transition flex items-center justify-center gap-1 text-zinc-400 hover:text-white">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 10.5l4.5 3-4.5 3v-6z"/>
+              </svg>
+              Videos (<span id="count-videos-badge">0</span>)
+            </button>
+            <button onclick="setMediaActiveTab('audio');" id="media-tab-btn-audio" class="gallery-tab-btn flex-1 py-2 text-center text-[10px] font-bold uppercase rounded-lg border border-transparent transition flex items-center justify-center gap-1 text-zinc-400 hover:text-white">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"/>
+              </svg>
+              Audio (<span id="count-audio-badge">0</span>)
+            </button>
+          </div>
+
+          <!-- Dynamic Medias scrollable grid inside categories -->
+          <div id="media-gallery-list" class="max-h-64 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+            <!-- Loading indicator -->
+            <div id="gallery-loader-msg" class="text-center py-6 text-zinc-500 text-xs font-medium">
+              Synchronizing library directly with Firebase...
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Change password panel -->
+        <div class="bg-zinc-900/40 p-5 rounded-2xl border border-zinc-850/85 space-y-4">
+          <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+            <h4 class="text-xs font-black tracking-widest text-zinc-400 uppercase font-mono">3. Reset Access Password</h4>
+            <span class="text-[9px] bg-zinc-800 text-zinc-400 border border-zinc-700 px-1.5 py-0.5 rounded font-mono">SECURITY</span>
+          </div>
+          
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Current Password</label>
+            <input type="password" id="set-current-pwd" class="glass-input p-3 rounded-xl text-white font-mono text-xs outline-none w-full" placeholder="Type current pin code (Length: 8)">
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">New Password (8 digits)</label>
+            <input type="password" id="set-new-pwd" class="glass-input p-3 rounded-xl text-white font-mono text-xs outline-none w-full" placeholder="Type new 8-digit lock code">
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Confirm New Password</label>
+            <input type="password" id="set-confirm-pwd" class="glass-input p-3 rounded-xl text-white font-mono text-xs outline-none w-full" placeholder="Verify new 8-digit lock code">
+          </div>
+
+          <button onclick="updatePasscode();" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider transition active:scale-95">
+            Save Passcode to Storage
+          </button>
+
+          <div id="settings-p-feedback" class="text-[11px] font-semibold text-center py-2 text-zinc-500 min-h-[28px]">
+            Changes will take effect instantly.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick Credits and build -->
+      <div class="border-t border-zinc-900 pt-4 flex items-center justify-between mt-4">
+        <p class="text-[9px] font-mono text-zinc-600 uppercase">MOBILE OBS CLIENT CONTROL v2.2.0 • PHASE 2 CORE</p>
+        <span class="text-[8px] border border-zinc-800 px-1.5 py-0.5 rounded text-zinc-500 font-mono tracking-widest leading-none">ACTIVE</span>
       </div>
     </div>
   </div>
 
-  <script>
-    const bc = new BroadcastChannel('obs_stream_channel');
-    const DEF_IMG="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%2312141c'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-weight='bold' font-size='16' fill='%2371717a' text-anchor='middle' dy='.3em'%3ESOURCE REQUIRED%3C/text%3E%3C/svg%3E";
-    const animOpt=`
-      <option value="anim-cinematic">Cinematic Zoom In</option><option value="anim-3d-flip">3D Flip Reveal</option><option value="anim-elastic-bounce">Elastic Bounce Slide</option><option value="anim-neon-fade">Neon Alpha Fade</option><option value="anim-bottom-roller">Smooth Bottom Roller</option><option value="anim-skew-stretch">Left to Right Skew Stretcher</option><option value="anim-top-drop">Top Drop & Shake</option><option value="anim-flash-glitch">Flash Glitch Slide</option><option value="anim-diagonal-wave">Diagonal Wave Rotate</option><option value="anim-heartbeat">Heartbeat Pulse Entrance</option><option value="anim-split-horizon">Split Horizon Reveal</option><option value="anim-blur-focus">Blur to Sharp Focus</option><option value="anim-spiral-vortex">Spiral Vortex Spin</option><option value="anim-elegant-curtain">Elegant Curtain Slide</option><option value="anim-corner-snap">Corner Magnet Snap</option>`;
-    const extOpt=`<option value="exit-fade-out">Fade Out Wipe</option><option value="exit-slide-down">Slide Down Drain</option><option value="exit-zoom-out">Scale Zoom Out</option><option value="exit-3d-flip">3D Flip Collapse</option><option value="exit-bounce-out">Elastci Bounce Out</option>`;
+  <!-- Firebase Script modules and Core Operations script -->
+  <script type="module">
+    // Load modern Firebase packages via ESM
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    let slots = JSON.parse(localStorage.getItem('cms_slots')) || Array.from({length:15}).map((_,i)=>({id:i+1, name:"Slot "+(i+1), image:DEF_IMG, width:640, height:360, anim:'anim-cinematic', exit:'exit-fade-out', text:'', timer:0, audio:false}));
-    let instant = JSON.parse(localStorage.getItem('cms_instant')) || { image:DEF_IMG, width:800, height:600, anim:'anim-cinematic', exit:'exit-fade-out', text:'', timer:0, audio:false };
-
-    function save() { try { localStorage.setItem('cms_slots',JSON.stringify(slots)); localStorage.setItem('cms_instant',JSON.stringify(instant)); } catch(e){ alert("Storage Full! Compress images."); } }
-    function saveProf(p) { try { localStorage.setItem('cms_prof_'+p, JSON.stringify({s:slots, i:instant, br:document.getElementById('g-br').value, fx:document.getElementById('g-fx').value})); alert("Saved to Local Profile "+p); } catch(e){} }
-    function loadProf(p) { try { const d=JSON.parse(localStorage.getItem('cms_prof_'+p)); if(d){ slots=d.s; instant=d.i; document.getElementById('g-br').value=d.br; document.getElementById('g-fx').value=d.fx; save(); render(); } } catch(e){} }
-
-    function compress(file, cb) {
-      const r=new FileReader(); r.onload=(e)=>{ const i=new Image(); i.onload=()=>{
-        const c=document.createElement("canvas"); let w=i.width, h=i.height; if(w>1000||h>1000){ let r=Math.min(1000/w,1000/h); w*=r;h*=r;}
-        c.width=w; c.height=h; c.getContext("2d").drawImage(i,0,0,w,h); cb(c.toDataURL("image/webp",0.75));
-      }; i.src=e.target.result; }; r.readAsDataURL(file);
-    }
-
-    function fire(cfg, id) {
-       const pl = { type:'trigger', slotId:id, image:cfg.image, width:cfg.width, height:cfg.height, animation:cfg.anim, exitAnimation:cfg.exit, textOverlay:cfg.text, autoHide:cfg.timer, audioEnabled:cfg.audio, borderRadius:document.getElementById("g-br").value, shadowEffect:document.getElementById("g-fx").value };
-       bc.postMessage(pl); try { localStorage.setItem('obs_stream_payload', JSON.stringify(pl)); } catch(e){}
-    }
-
-    function buildCard(cfg, isInst) {
-       const id = isInst ? 'instant' : cfg.id;
-       const div = document.createElement("div");
-       div.className = `slot-card bg-zinc-950 border ${isInst?'border-blue-500/50':'border-zinc-800'} rounded-2xl p-4 flex flex-col gap-3 transition relative shadow-lg`;
-       div.id = 'card-' + id;
-       div.innerHTML = `
-         ${isInst ? '<div class="absolute -top-3 left-4 bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded shadow-lg tracking-widest uppercase">Instant Master Directory</div>' : ''}
-         <div class="flex gap-2 ${isInst?'mt-2':''}">
-            ${isInst ? '' : `<span class="bg-black border border-zinc-800 px-2.5 py-1.5 rounded text-[10px] font-black text-zinc-500 flex items-center justify-center">ID:${id}</span>`}
-            <input type="text" class="i-name w-full bg-black border border-zinc-800 focus:border-blue-500 p-1.5 text-xs text-white font-bold rounded ${isInst?'hidden':''} outline-none transition" value="${cfg.name||''}" title="Slot Name Identifier">
-         </div>
-         <div class="flex gap-3">
-            <div class="w-16 h-16 bg-black rounded-lg overflow-hidden flex-shrink-0 relative border border-zinc-800">
-               <img src="${cfg.image}" class="i-img w-full h-full object-cover">
-            </div>
-            <div class="flex flex-col gap-1.5 w-full justify-center">
-               <input type="file" class="i-file hidden" accept="image/*">
-               <button class="i-upl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 hover:text-white text-[9.5px] py-[6px] rounded text-zinc-400 font-bold transition uppercase tracking-widest">Base64 Asset Upload</button>
-               <input type="text" class="i-txt bg-black border border-zinc-800 text-[11px] text-white p-1.5 rounded placeholder-zinc-600 outline-none focus:border-zinc-500 transition" placeholder="Text Overlay Layer..." value="${cfg.text}">
-            </div>
-         </div>
-         <div class="grid grid-cols-2 gap-2 mt-1">
-            <div class="flex bg-black border border-zinc-800 rounded items-center px-2"><span class="text-[9px] text-zinc-500 mr-2 font-bold pointer-events-none">W (px)</span><input type="number" class="i-w w-full bg-transparent outline-none text-white text-xs font-bold py-1.5" value="${cfg.width}"></div>
-            <div class="flex bg-black border border-zinc-800 rounded items-center px-2"><span class="text-[9px] text-zinc-500 mr-2 font-bold pointer-events-none">H (px)</span><input type="number" class="i-h w-full bg-transparent outline-none text-white text-xs font-bold py-1.5" value="${cfg.height}"></div>
-         </div>
-         <div class="flex gap-1.5">
-            <button class="b-16 bg-zinc-900 hover:bg-zinc-700 flex-1 text-[9px] text-zinc-400 py-1.5 rounded border border-zinc-800 font-bold transition">16:9 AR</button>
-            <button class="b-91 bg-zinc-900 hover:bg-zinc-700 flex-1 text-[9px] text-zinc-400 py-1.5 rounded border border-zinc-800 font-bold transition">9:16 AR</button>
-            <button class="b-11 bg-zinc-900 hover:bg-zinc-700 flex-1 text-[9px] text-zinc-400 py-1.5 rounded border border-zinc-800 font-bold transition">1:1 AR</button>
-         </div>
-         <div class="grid grid-cols-2 gap-2 mt-0.5">
-            <div><label class="text-[8px] text-zinc-500 font-bold uppercase ml-1 block mb-1 tracking-wider">Entry Animator</label><select class="i-ani w-full text-[9px] bg-black text-white p-1.5 rounded border border-zinc-800 font-bold outline-none">${animOpt}</select></div>
-            <div><label class="text-[8px] text-zinc-500 font-bold uppercase ml-1 block mb-1 tracking-wider">Exit Animator Wipe</label><select class="i-ext w-full text-[9px] bg-black text-white p-1.5 rounded border border-zinc-800 font-bold outline-none">${extOpt}</select></div>
-         </div>
-         <div class="flex gap-2 items-center bg-black/40 p-1.5 rounded border border-zinc-800/80">
-            <div class="w-1/2 flex items-center gap-2 pl-1"><label class="text-[8.5px] text-zinc-400 font-bold uppercase whitespace-nowrap tracking-wider">Auto-Hide (s)</label><input type="number" class="i-tim bg-black border border-zinc-700 text-white w-full rounded p-1 text-center text-[10px] font-bold outline-none" value="${cfg.timer}"></div>
-            <div class="w-px h-6 bg-zinc-800"></div>
-            <div class="w-1/2 flex justify-center items-center gap-2 cursor-pointer"><label class="text-[8.5px] text-zinc-400 font-bold uppercase cursor-pointer tracking-wider whitespace-nowrap">Audio Trigger</label><input type="checkbox" class="i-aud w-3.5 h-3.5 accent-blue-500" ${cfg.audio?'checked':''}></div>
-         </div>
-         <button class="i-trg w-full mt-2 ${isInst?'bg-blue-600 hover:bg-blue-500':'bg-emerald-700 hover:bg-emerald-600'} text-white font-black text-[11px] tracking-widest uppercase py-4 rounded-xl shadow-lg transition transform active:scale-[0.98] flex justify-center items-center gap-2 relative overflow-hidden group">
-            <span class="relative z-10">TRANSMIT LIVE</span>
-         </button>
-       `;
-
-       if(!isInst) div.querySelector(".i-name").oninput=(e)=>{cfg.name=e.target.value; save();}
-       div.querySelector(".i-upl").onclick=()=>div.querySelector(".i-file").click();
-       div.querySelector(".i-file").onchange=(e)=>{
-         if(e.target.files[0]) compress(e.target.files[0], (d)=>{ cfg.image=d; div.querySelector(".i-img").src=d; save(); });
-       };
-       div.querySelector(".i-txt").oninput=(e)=>{cfg.text=e.target.value; save();};
-       const w=div.querySelector(".i-w"); const h=div.querySelector(".i-h");
-       w.oninput=(e)=>{cfg.width=parseInt(e.target.value)||100; save();}; h.oninput=(e)=>{cfg.height=parseInt(e.target.value)||100; save();};
-       div.querySelector(".b-16").onclick=()=>{w.value=640; h.value=360; cfg.width=640; cfg.height=360; save();};
-       div.querySelector(".b-91").onclick=()=>{w.value=360; h.value=640; cfg.width=360; cfg.height=640; save();};
-       div.querySelector(".b-11").onclick=()=>{w.value=400; h.value=400; cfg.width=400; cfg.height=400; save();};
-       const ani=div.querySelector(".i-ani"); ani.value=cfg.anim; ani.onchange=(e)=>{cfg.anim=e.target.value; save();};
-       const ext=div.querySelector(".i-ext"); ext.value=cfg.exit; ext.onchange=(e)=>{cfg.exit=e.target.value; save();};
-       div.querySelector(".i-tim").oninput=(e)=>{cfg.timer=parseFloat(e.target.value)||0; save();};
-       div.querySelector(".i-aud").onchange=(e)=>{cfg.audio=e.target.checked; save();};
-       div.querySelector(".i-trg").onclick=()=>fire(cfg, id);
-       return div;
-    }
-
-    function render() {
-      document.getElementById("instant-container").innerHTML=""; document.getElementById("instant-container").appendChild(buildCard(instant, true));
-      const sgrid=document.getElementById("slots-grid"); sgrid.innerHTML=""; slots.forEach(s=>sgrid.appendChild(buildCard(s, false)));
-    }
-
-    document.getElementById("clear-btn").onclick = () => {
-       const pl={type:'clear'}; bc.postMessage(pl); try{localStorage.setItem('obs_stream_payload',JSON.stringify(pl));}catch(e){}
+    // Exact requested Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtD8HhanKv1UsiOG4dggg_8ZkLBeEFN5g",
+      authDomain: "cricket-48711.firebaseapp.com",
+      databaseURL: "https://cricket-48711-default-rtdb.firebaseio.com",
+      projectId: "cricket-48711",
+      storageBucket: "cricket-48711.firebasestorage.app",
+      messagingSenderId: "44956458682",
+      appId: "1:44956458682:web:7728dfdb165a996032e0c3",
+      measurementId: "G-GW04H05M9G"
     };
 
-    bc.onmessage = (e) => {
-       const d=e.data; if(!d) return;
-       if(d.type==='obs_started') {
-           document.querySelectorAll('.slot-card').forEach(c => { c.classList.remove('live-slot'); let btn=c.querySelector('.i-trg'); btn.classList.remove('live-btn'); btn.querySelector('.z-10').innerText='TRANSMIT LIVE'; });
-           const tgt = document.getElementById('card-'+d.slotId);
-           if(tgt) { tgt.classList.add('live-slot'); let btn=tgt.querySelector('.i-trg'); btn.classList.add('live-btn'); btn.querySelector('.z-10').innerText='🔴 LIVE ON AIR'; }
-           const b=document.getElementById('mon-box'); b.style.opacity='1'; b.style.aspectRatio=`${d.width}/${d.height}`; 
-           b.style.borderRadius=(d.br||0)+'px'; b.className=`relative flex items-center justify-center transition-all bg-zinc-900 border border-zinc-700 overflow-hidden ${d.fx&&d.fx!=='fx-none'?d.fx:''}`;
-           if(!d.br) b.style.borderRadius='0px';
-           document.getElementById('mon-img').src=d.image; document.getElementById('mon-txt').innerText=d.text;
-       }
-       if(d.type==='obs_cleared') {
-           document.querySelectorAll('.slot-card').forEach(c => { c.classList.remove('live-slot'); let btn=c.querySelector('.i-trg'); btn.classList.remove('live-btn'); btn.querySelector('.z-10').innerText='TRANSMIT LIVE'; });
-           document.getElementById('mon-box').style.opacity='0';
-       }
-    };
-    render();
+    // Initialize Firebase Services
+    let app, database;
+    let isConnected = false;
+
+    try {
+      app = initializeApp(firebaseConfig);
+      database = getDatabase(app);
+      
+      // Hook functions up globally so normal scripting tags can access Firebase RTDB triggers
+      window.FirebaseDb_saveMediaItem = (item) => {
+        const itemRef = ref(database, 'media_gallery/items/' + item.id);
+        return set(itemRef, item);
+      };
+      
+      window.FirebaseDb_deleteMediaItem = (itemId) => {
+        const itemRef = ref(database, 'media_gallery/items/' + itemId);
+        return remove(itemRef);
+      };
+      
+      window.FirebaseDb_transmitMedia = (item) => {
+        const txRef = ref(database, 'live_broadcast/active_media_transmit');
+        return set(txRef, {
+          itemId: item.id,
+          name: item.name,
+          category: item.category,
+          url: item.url,
+          timestamp: Date.now()
+        });
+      };
+
+      // --- PHASE 3 SLOT MANAGER SYNC FUNCTIONS ---
+      window.FirebaseDb_saveSlotItem = (slot) => {
+        const slotRef = ref(database, 'slots/items/' + slot.id);
+        return set(slotRef, slot);
+      };
+
+      window.FirebaseDb_deleteSlotItem = (slotId) => {
+        const slotRef = ref(database, 'slots/items/' + slotId);
+        return remove(slotRef);
+      };
+
+      window.FirebaseDb_castSlotLive = (slot) => {
+        const activeRef = ref(database, 'live_broadcast/active_slot');
+        return set(activeRef, {
+          type: 'trigger',
+          id: slot.id,
+          image: slot.image,
+          textOverlay: slot.text || '',
+          textX: slot.textX !== undefined ? slot.textX : 50,
+          textY: slot.textY !== undefined ? slot.textY : 80,
+          textColor: slot.textColor || '#ffffff',
+          textFontSize: slot.textFontSize || '36',
+          textFontFamily: slot.textFontFamily || "'Outfit', sans-serif",
+          imageWidth: slot.imageWidth || 800,
+          imageHeight: slot.imageHeight || 250,
+          inAnimation: slot.inAnimation || 'anim-cinematic',
+          outAnimation: slot.outAnimation || 'exit-fade-out',
+          duration: slot.duration || 'none',
+          shadowEffect: slot.shadowEffect || 'none',
+          borderRadius: slot.borderRadius || 0,
+          audioEnabled: slot.audioEnabled === true || slot.audioEnabled === 'true',
+          timestamp: Date.now()
+        });
+      };
+
+      window.FirebaseDb_clearActiveCast = () => {
+        const activeRef = ref(database, 'live_broadcast/active_slot');
+        return set(activeRef, {
+          type: 'clear',
+          timestamp: Date.now()
+        });
+      };
+
+      // Update our database indicator status when connected
+      const statusRef = ref(database, ".info/connected");
+      onValue(statusRef, (snap) => {
+        const ind = document.getElementById("db-indicator");
+        const lbl = document.getElementById("db-status-label");
+        
+        if (snap.val() === true) {
+          isConnected = true;
+          ind.className = "w-2.5 h-2.5 bg-green-500 border border-green-400 rounded-full shadow-[0_0_8px_#22c55e]";
+          lbl.innerText = "Firebase RTDB: Connected";
+          
+          // Write system check to RTDB
+          const logRef = ref(database, "system/status");
+          set(logRef, {
+            phase: "Phase 3 - OBS Engine Active Layouts",
+            timestamp: Date.now(),
+            active: true
+          });
+        } else {
+          isConnected = false;
+          ind.className = "w-2.5 h-2.5 bg-yellow-500 border border-yellow-400 rounded-full shadow-[0_0_8px_#eab308]";
+          lbl.innerText = "Firebase RTDB: Reconnecting...";
+        }
+      });
+      
+      // Live listener for Media items
+      const mediaItemsRef = ref(database, 'media_gallery/items');
+      onValue(mediaItemsRef, (snap) => {
+        const val = snap.val() || {};
+        const mediaArray = Object.keys(val).map(key => val[key]);
+        
+        if (window.onMediaGalleryUpdate) {
+          window.onMediaGalleryUpdate(mediaArray);
+        }
+      });
+
+      // Live listener for Layout Designer Slots
+      const slotsRef = ref(database, 'slots/items');
+      onValue(slotsRef, (snap) => {
+        const val = snap.val() || {};
+        const slotsArray = Object.keys(val).map(key => val[key]);
+        if (window.onSlotsUpdate) {
+          window.onSlotsUpdate(slotsArray);
+        }
+      });
+
+      // Live listener for Active Cast updates
+      const activeSlotRef = ref(database, 'live_broadcast/active_slot');
+      onValue(activeSlotRef, (snap) => {
+        const val = snap.val();
+        if (window.onActiveCastUpdate) {
+          window.onActiveCastUpdate(val);
+        }
+      });
+
+      // Keep a live monitor counter for demo tracking
+      const demoCounterRef = ref(database, "system/viewers");
+      onValue(demoCounterRef, (snap) => {
+        const value = snap.val() || 0;
+        const countTxt = document.getElementById("viewers-count");
+        if (countTxt) {
+          countTxt.innerText = (value === 1) ? "1 active display" : `${value} active displays`;
+        }
+      });
+      
+    } catch (error) {
+      console.error("Firebase setup failed:", error);
+      const ind = document.getElementById("db-indicator");
+      const lbl = document.getElementById("db-status-label");
+      if (ind && lbl) {
+        ind.className = "blink-red";
+        lbl.innerText = "Firebase Offline Error";
+      }
+    }
   </script>
+
+  <!-- Non-module simple JavaScript functions for handling state, Lock, Style customization and Gallery UI logic -->
+  <script>
+    // Pin logic & State
+    const DEFAULT_PIN = "96159615";
+    let enteredPin = "";
+    
+    // Media Core Gallery active filter
+    let activeMediaTab = 'images';
+    let loadedMediaDatabase = []; // Synced on-value with Firebase database array
+
+    // Welcome timer and lock transition
+    window.addEventListener("DOMContentLoaded", () => {
+      // Load saved style customization parameters instantly
+      initializeCustomAestheticStyle();
+
+      // Transition from splash to lock screen after welcome animation
+      setTimeout(() => {
+        const splash = document.getElementById("welcome-screen");
+        const lock = document.getElementById("lock-screen");
+        
+        splash.style.opacity = "0";
+        setTimeout(() => {
+          splash.style.display = "none";
+          lock.style.display = "flex";
+          lock.classList.add("fade-in-up");
+        }, 1000);
+      }, 2000);
+    });
+
+    // Check localStorage password or set default
+    function getStoredPin() {
+      let stored = localStorage.getItem("obs_system_pin");
+      if (!stored) {
+        localStorage.setItem("obs_system_pin", DEFAULT_PIN);
+        stored = DEFAULT_PIN;
+      }
+      return stored;
+    }
+
+    // Handles lock screen PIN input digital clicks
+    function pressPin(val) {
+      const slots = document.querySelectorAll(".pin-slot");
+      const feedback = document.getElementById("pin-feedback");
+      const currentPinRequired = getStoredPin();
+
+      if (val === "clear") {
+        enteredPin = "";
+        feedback.innerText = "PIN memory cleared";
+        feedback.className = "text-center h-5 text-xs font-semibold text-zinc-500 tracking-wider";
+        updatePinSlots();
+        return;
+      }
+
+      if (val === "back") {
+        if (enteredPin.length > 0) {
+          enteredPin = enteredPin.slice(0, -1);
+          feedback.innerText = "Correct code length: 8 digits";
+          feedback.className = "text-center h-5 text-xs font-semibold text-zinc-500 tracking-wider";
+        }
+        updatePinSlots();
+        return;
+      }
+
+      // Max length check
+      if (enteredPin.length < 8) {
+        enteredPin += val;
+        updatePinSlots();
+      }
+
+      // Check pin match when 8 digits reached
+      if (enteredPin.length === 8) {
+        if (enteredPin === currentPinRequired) {
+          feedback.innerText = "🔒 ACCESS GRANTED • BUILDING WORKSPACE";
+          feedback.className = "text-center h-5 text-xs font-bold text-green-400 tracking-wider";
+          
+          // Fade to dashboard
+          setTimeout(() => {
+            const lock = document.getElementById("lock-screen");
+            const mainLayout = document.getElementById("main-layout");
+            
+            lock.style.opacity = "0";
+            setTimeout(() => {
+              lock.style.display = "none";
+              mainLayout.style.display = "flex";
+              mainLayout.classList.add("fade-in-up");
+            }, 600);
+          }, 800);
+        } else {
+          feedback.innerText = "❌ ACCESS DENIED • INCORRECT PIN";
+          feedback.className = "text-center h-5 text-xs font-bold text-red-500 tracking-wider";
+          
+          // Ripple slots red for error feedback
+          shakePins();
+          enteredPin = "";
+          setTimeout(() => {
+            updatePinSlots();
+          }, 500);
+        }
+      }
+    }
+
+    function updatePinSlots() {
+      const slots = document.querySelectorAll(".pin-slot");
+      slots.forEach((slot, index) => {
+        if (index < enteredPin.length) {
+          slot.className = "pin-slot w-4 h-4 rounded-full border border-[var(--accent-color)] bg-[var(--accent-color)] shadow-[0_0_8px_var(--accent-color)]";
+        } else {
+          slot.className = "pin-slot w-4 h-4 rounded-full border border-zinc-700 bg-transparent";
+        }
+      });
+    }
+
+    function shakePins() {
+      const slots = document.querySelectorAll(".pin-slot");
+      slots.forEach(slot => {
+        slot.className = "pin-slot w-4 h-4 rounded-full border border-red-500 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse";
+      });
+    }
+
+    // Toggle lock screen back manually
+    function toggleLock() {
+      enteredPin = "";
+      updatePinSlots();
+      const feedback = document.getElementById("pin-feedback");
+      feedback.innerText = "Secure Handshake Required";
+      feedback.className = "text-center h-5 text-xs font-semibold text-zinc-500 tracking-wider";
+
+      const lock = document.getElementById("lock-screen");
+      const mainLayout = document.getElementById("main-layout");
+      
+      mainLayout.style.display = "none";
+      lock.style.display = "flex";
+      lock.style.opacity = "1";
+    }
+
+    // Toggle Dashboard active sections page
+    function openSection(secId) {
+      // Toggle custom active visibility
+      const controlSec = document.getElementById("obs-control-section");
+      const displaySec = document.getElementById("obs-display-section");
+
+      if (secId === "obs-control") {
+        controlSec.classList.add("active");
+        displaySec.classList.remove("active");
+        controlSec.scrollIntoView({ behavior: 'smooth' });
+      } else if (secId === "obs-display") {
+        displaySec.classList.add("active");
+        controlSec.classList.remove("active");
+        displaySec.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // ================= DYNAMIC STYLING LOGIC =================
+    
+    function initializeCustomAestheticStyle() {
+      const savedAccent = localStorage.getItem("obs_custom_accent") || "#3b82f6";
+      const savedBg = localStorage.getItem("obs_custom_bg") || "#030303";
+      const savedText = localStorage.getItem("obs_custom_text") || "#f4f4f5";
+      const savedFont = localStorage.getItem("obs_custom_font") || "'Outfit', sans-serif";
+      const savedFontSize = localStorage.getItem("obs_custom_fontsize") || "16";
+
+      applyCustomAccent(savedAccent);
+      applyCustomBg(savedBg);
+      applyCustomText(savedText);
+      applyCustomFont(savedFont);
+      applyCustomFontSize(savedFontSize);
+
+      // Set input values to match loaded states
+      document.getElementById("theme-color-accent").value = savedAccent;
+      document.getElementById("theme-color-bg").value = savedBg;
+      document.getElementById("theme-color-text").value = savedText;
+      document.getElementById("styler-font-family").value = savedFont;
+      document.getElementById("styler-font-size").value = savedFontSize;
+    }
+
+    function applyCustomAccent(hex) {
+      document.documentElement.style.setProperty('--accent-color', hex);
+      const glow = hexToRGBGlow(hex);
+      document.documentElement.style.setProperty('--accent-glow', glow);
+      document.getElementById("theme-color-accent-lbl").innerText = hex;
+      localStorage.setItem("obs_custom_accent", hex);
+    }
+
+    function applyCustomBg(hex) {
+      document.documentElement.style.setProperty('--app-bg', hex);
+      document.getElementById("theme-color-bg-lbl").innerText = hex;
+      localStorage.setItem("obs_custom_bg", hex);
+    }
+
+    function applyCustomText(hex) {
+      document.documentElement.style.setProperty('--text-color', hex);
+      document.getElementById("theme-color-text-lbl").innerText = hex;
+      localStorage.setItem("obs_custom_text", hex);
+    }
+
+    function applyCustomFont(family) {
+      document.documentElement.style.setProperty('--base-font', family);
+      localStorage.setItem("obs_custom_font", family);
+    }
+
+    function applyCustomFontSize(px) {
+      document.documentElement.style.fontSize = px + 'px';
+      document.getElementById("styler-font-size-lbl").innerText = px + 'px';
+      localStorage.setItem("obs_custom_fontsize", px);
+    }
+
+    function applyPresetTheme(accentHex, bgHex, textHex) {
+      applyCustomAccent(accentHex);
+      applyCustomBg(bgHex);
+      applyCustomText(textHex);
+
+      document.getElementById("theme-color-accent").value = accentHex;
+      document.getElementById("theme-color-bg").value = bgHex;
+      document.getElementById("theme-color-text").value = textHex;
+      
+      showToast("🎨 Aesthetic Swatch Applied!", "Successfully calibrated new custom styles.");
+    }
+
+    function hexToRGBGlow(hex) {
+      // Simple parse to rgba helper
+      let c;
+      if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x' + c.join('');
+        return 'rgba(' + [(c>>16)&255, (c>>8)&255, c&255].join(',') + ',0.35)';
+      }
+      return 'rgba(59,130,246,0.35)'; // Fallback
+    }
+
+    // Toggle Settings drawer
+    function toggleSettingsModal() {
+      const modal = document.getElementById("settings-modal");
+      if (modal.classList.contains("hidden")) {
+        modal.classList.remove("hidden");
+        document.getElementById("set-current-pwd").value = "";
+        document.getElementById("set-new-pwd").value = "";
+        document.getElementById("set-confirm-pwd").value = "";
+        document.getElementById("settings-p-feedback").innerText = "Changes will take effect instantly.";
+        document.getElementById("settings-p-feedback").className = "text-[11px] font-semibold text-center py-2 text-zinc-500";
+        
+        // Initialize Media upload triggers
+        setupMediaDropZone();
+      } else {
+        modal.classList.add("hidden");
+      }
+    }
+
+    // Handles resetting password and validation logic
+    function updatePasscode() {
+      const currentInput = document.getElementById("set-current-pwd").value;
+      const newInput = document.getElementById("set-new-pwd").value;
+      const confirmInput = document.getElementById("set-confirm-pwd").value;
+      const pFeedback = document.getElementById("settings-p-feedback");
+
+      const storedPin = getStoredPin();
+
+      if (currentInput !== storedPin) {
+        pFeedback.innerText = "❌ Current password does not match!";
+        pFeedback.className = "text-[11px] font-bold text-center py-2 text-red-500";
+        return;
+      }
+
+      if (newInput.length !== 8 || isNaN(Number(newInput))) {
+        pFeedback.innerText = "❌ New PIN must be exactly 8 digits!";
+        pFeedback.className = "text-[11px] font-bold text-center py-2 text-red-500";
+        return;
+      }
+
+      if (newInput !== confirmInput) {
+        pFeedback.innerText = "❌ Confirmation password does not match!";
+        pFeedback.className = "text-[11px] font-bold text-center py-2 text-red-500";
+        return;
+      }
+
+      // Success
+      localStorage.setItem("obs_system_pin", newInput);
+      pFeedback.innerText = "✅ PIN updated successfully in storage!";
+      pFeedback.className = "text-[11px] font-bold text-center py-2 text-green-400";
+      
+      // Clear inputs
+      document.getElementById("set-current-pwd").value = "";
+      document.getElementById("set-new-pwd").value = "";
+      document.getElementById("set-confirm-pwd").value = "";
+
+      showToast("🔒 Passcode Re-secured", "Pin passcode code saved successfully to local storage.");
+    }
+
+    // ================= AUTOMATED OBS LINK GENERATOR =================
+    function copyOBSScreenLink() {
+      const fullUrl = window.location.origin + "/obs.html";
+      
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(fullUrl)
+          .then(() => {
+            showToast("📋 OBS Link Copied!", `Generated direct laptop-ready URL: ${fullUrl}`);
+          })
+          .catch((err) => {
+            fallbackCopyText(fullUrl);
+          });
+      } else {
+        fallbackCopyText(fullUrl);
+      }
+    }
+
+    function fallbackCopyText(text) {
+      try {
+        const el = document.createElement('textarea');
+        el.value = text;
+        el.setAttribute('readonly', '');
+        el.style.position = 'absolute';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        el.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(el);
+        if (success) {
+          showToast("📋 OBS Link Copied (Fallback)!", `Generated direct laptop-ready URL: ${text}`);
+        } else {
+          showToast("❌ Clipboard Error", "Direct clipboard write failed. Please highlight the URL manually.", true);
+        }
+      } catch(e) {
+        showToast("❌ Clipboard Exception", e.message, true);
+      }
+    }
+
+
+    // ================= TOAST NOTIFICATION UTILITY =================
+    function showToast(title, msg, isAlert = false) {
+      const container = document.getElementById("toast-container");
+      
+      const toast = document.createElement("div");
+      toast.className = `premium-panel p-4 rounded-2xl flex flex-col gap-1 shadow-2xl relative overflow-hidden pointer-events-auto border-l-4 ${isAlert ? 'border-red-500' : 'border-[var(--accent-color)]'} toast-animate`;
+      
+      // Toast structure
+      toast.innerHTML = `
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-bold text-white tracking-wide uppercase">${title}</h4>
+          <button onclick="this.parentElement.parentElement.remove();" class="text-[10px] text-zinc-500 focus:text-white uppercase">Close</button>
+        </div>
+        <p class="text-[11px] text-zinc-400">${msg}</p>
+      `;
+
+      container.appendChild(toast);
+
+      // Auto close after 4.5 seconds
+      setTimeout(() => {
+        toast.style.animation = "shrinkFade 0.4s ease forwards";
+        setTimeout(() => {
+          toast.remove();
+        }, 400);
+      }, 4500);
+    }
+
+
+    // ================= MEDIA GALLERY LOGIC =================
+
+    // Set Media Category Active Tab
+    function setMediaActiveTab(tabName) {
+      activeMediaTab = tabName;
+      
+      // Set button visual states
+      document.querySelectorAll(".gallery-tab-btn").forEach(btn => {
+        btn.classList.remove("active", "text-white");
+        btn.classList.add("text-zinc-400");
+      });
+      
+      const targetBtn = document.getElementById(`media-tab-btn-${tabName}`);
+      if(targetBtn) {
+        targetBtn.classList.add("active", "text-white");
+        targetBtn.classList.remove("text-zinc-400");
+      }
+
+      // Render the matching gallery subset
+      renderMediaGalleryItems();
+    }
+
+    // Preloaded royalty-free asset library templates
+    const PLACEHOLDER_MEDIA = [
+      {
+        id: "placeholder_img_1",
+        name: "Neon Stream Lower Third Draft.jpg",
+        category: "images",
+        size: 34500,
+        type: "image/jpeg",
+        url: "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40' viewBox='0 0 120 40'%3E%3Crect width='120' height='40' fill='%2312141c'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-weight='bold' font-size='8' fill='%233b82f6' text-anchor='middle' dy='.3em'%3ELOWER THIRD GRAPHIC%3C/text%3E%3C/svg%3E",
+        timestamp: 1629831901
+      },
+      {
+        id: "placeholder_img_2",
+        name: "Standby Broadcast Screen Accent.jpg",
+        category: "images",
+        size: 51200,
+        type: "image/jpeg",
+        url: "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40' viewBox='0 0 120 40'%3E%3Crect width='120' height='40' fill='%2312141c'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-weight='bold' font-size='8' fill='%2310b981' text-anchor='middle' dy='.3em'%3ESTAGE ACTIVE OVERLAY%3C/text%3E%3C/svg%3E",
+        timestamp: 1629831902
+      },
+      {
+        id: "placeholder_aud_1",
+        name: "Success Airhorn Broadcast Cue.mp3",
+        category: "audio",
+        size: 42100,
+        type: "audio/mpeg",
+        url: "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAAA", // basic empty wave data
+        timestamp: 1629831903
+      },
+      {
+        id: "placeholder_vid_1",
+        name: "Neon Glitch Cyberpunk Overlay Loop.mp4",
+        category: "videos",
+        size: 98120,
+        type: "video/mp4",
+        url: "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40' viewBox='0 0 120 40'%3E%3Crect width='120' height='40' fill='%2305051a'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-weight='bold' font-size='8' fill='%23f43f5e' text-anchor='middle' dy='.3em'%3EGLITCH LOOP OVERLAY%3C/text%3E%3C/svg%3E",
+        timestamp: 1629831904
+      }
+    ];
+
+    // Callback globally triggered on database value change from module script
+    window.onMediaGalleryUpdate = function(firebaseMediaItems) {
+      // Merge local assets with user uploaded cloud items from Firebase Realtime Database
+      loadedMediaDatabase = [...PLACEHOLDER_MEDIA, ...firebaseMediaItems].filter((item, index, self) => 
+        self.findIndex(t => t.id === item.id) === index
+      );
+
+      // Render tab indicators
+      updateMediaCategoryBadges();
+
+      // Render list layout
+      renderMediaGalleryItems();
+    };
+
+    function updateMediaCategoryBadges() {
+      const counts = { images: 0, videos: 0, audio: 0 };
+      loadedMediaDatabase.forEach(item => {
+        if (counts[item.category] !== undefined) {
+          counts[item.category]++;
+        }
+      });
+
+      document.getElementById("count-images-badge").innerText = counts.images;
+      document.getElementById("count-videos-badge").innerText = counts.videos;
+      document.getElementById("count-audio-badge").innerText = counts.audio;
+    }
+
+    function renderMediaGalleryItems() {
+      const parentList = document.getElementById("media-gallery-list");
+      if(!parentList) return;
+
+      const filteredItems = loadedMediaDatabase.filter(item => item.category === activeMediaTab);
+
+      if (filteredItems.length === 0) {
+        parentList.innerHTML = `
+          <div class="text-center py-8 text-zinc-500 text-xs">
+            No active custom ${activeMediaTab} files uploaded yet.
+          </div>
+        `;
+        return;
+      }
+
+      // Sort items by upload timestamp
+      filteredItems.sort((a,b) => b.timestamp - a.timestamp);
+
+      parentList.innerHTML = filteredItems.map(item => {
+        const isDefault = item.id.startsWith("placeholder_");
+        const formattedSize = (item.size / 1024).toFixed(1) + " KB";
+        
+        let previewHtml = "";
+        
+        // Render different icons/previews based on active categories
+        if (item.category === 'images') {
+          previewHtml = `<img src="${item.url}" class="w-10 h-10 object-cover rounded-lg border border-zinc-800">`;
+        } else if (item.category === 'audio') {
+          previewHtml = `
+            <div class="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center text-[var(--accent-color)]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424"/>
+              </svg>
+            </div>
+          `;
+        } else {
+          // Video preview container
+          previewHtml = `
+            <div class="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center text-red-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.51 18h8.98a2.25 2.25 0 002.25-2.25V8.25A2.25 2.25 0 0013.49 6H4.51A2.25 2.25 0 002.25 8.25v7.5A2.25 2.25 0 004.51 18z"/>
+              </svg>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="flex items-center justify-between p-3 bg-black/40 border border-zinc-900 rounded-xl hover:border-zinc-850 gap-3 transition">
+            <div class="flex items-center gap-3 min-w-0">
+              ${previewHtml}
+              <div class="min-w-0">
+                <h6 class="text-[11px] font-bold text-white truncate break-all">${item.name}</h6>
+                <p class="text-[9px] text-zinc-500 font-mono mt-0.5">${formattedSize} • ${isDefault ? 'SYSTEM' : 'CLOUD'}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <!-- Quick Transmit Action -->
+              <button onclick='quickTransmitMediaItem(${JSON.stringify(item).replace(/'/g, "&apos;")});' class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-[9px] uppercase tracking-wider rounded-lg transition active:scale-95 flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 001.32-2.24 14.99 14.99 0 00-2.33-4.83m0 0a16.6 16.6 0 012.33-4.83 14.99 14.99 0 01-1.32-2.24m-12 11.2a6 6 0 005.84-7.38v4.8m0 0a16.61 16.61 0 00-2.33 4.83"/>
+                </svg>
+                Transmit
+              </button>
+              
+              <!-- Delete Custom item (non system placeholder) -->
+              ${!isDefault ? `
+                <button onclick="deleteCustomMediaItem('${item.id}', '${item.name}');" class="p-2 text-zinc-500 hover:text-red-400 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition" title="Delete custom asset">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                  </svg>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Triggered on file drag drop initialization
+    function setupMediaDropZone() {
+      const dropZone = document.getElementById("media-drop-zone");
+      const fileInput = document.getElementById("media-file-input");
+
+      if (!dropZone) return;
+
+      // Click zone trigger file manager popup
+      dropZone.onclick = () => fileInput.click();
+
+      dropZone.ondragover = (e) => {
+        e.preventDefault();
+        dropZone.classList.add("drag-over");
+      };
+
+      dropZone.ondragleave = () => {
+        dropZone.classList.remove("drag-over");
+      };
+
+      dropZone.ondrop = (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("drag-over");
+        if(e.dataTransfer.files.length > 0) {
+          processAndUploadMediaFiles(e.dataTransfer.files);
+        }
+      };
+
+      fileInput.onchange = (e) => {
+        if(e.target.files.length > 0) {
+          processAndUploadMediaFiles(e.target.files);
+        }
+      };
+    }
+
+    // Handler to convert, resize, read, and upload files asynchronously
+    function processAndUploadMediaFiles(files) {
+      const progress = document.getElementById("upload-progress-bar");
+      progress.style.width = "20%";
+
+      Array.from(files).forEach((file, index) => {
+        // Enforce basic type category parsing
+        let category = "images";
+        if(file.type.startsWith("audio/")) {
+          category = "audio";
+        } else if (file.type.startsWith("video/")) {
+          category = "videos";
+        } else if (!file.type.startsWith("image/")) {
+          showToast("❌ Format Not Supported", `File ${file.name} is not a valid media asset element.`, true);
+          return;
+        }
+
+        // Limit size validation for stable Realtime Database updates - increased to 10MB
+        if (file.size > 10 * 1024 * 1024) {
+          showToast("⚠️ File Warning Alert", `File size exceeds 10MB. To link larger assets, please copy-paste their direct HTTP web URLs into the Link input to avoid RTDB string buffer limits!`, true);
+          progress.style.width = "0%";
+          return;
+        }
+
+        progress.style.width = "50%";
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          const rawBase64 = e.target.result;
+          const mediaId = "media_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+
+          const newMediaItem = {
+            id: mediaId,
+            name: file.name,
+            category: category,
+            type: file.type,
+            size: file.size,
+            url: rawBase64,
+            timestamp: Date.now()
+          };
+
+          // Save directly into the synchronized Firebase db
+          if (window.FirebaseDb_saveMediaItem) {
+            window.FirebaseDb_saveMediaItem(newMediaItem)
+              .then(() => {
+                progress.style.width = "100%";
+                setTimeout(() => progress.style.width = "0%", 1000);
+                showToast("✨ Asset Synced Successfully", `Unified database loaded file ${file.name} into live folders.`);
+              })
+              .catch(err => {
+                progress.style.width = "0%";
+                showToast("❌ Firebase Save Failed", `Failed to upload: ${err.message}`, true);
+              });
+          } else {
+            progress.style.width = "0%";
+            showToast("❌ Connection Standby", "Database syncing service currently in standby mode.", true);
+          }
+        };
+
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Adds direct URL asset with unrestricted size
+    window.addMediaUrl = function() {
+      const urlInput = document.getElementById("media-url-input");
+      if(!urlInput) return;
+      const urlVal = urlInput.value.trim();
+      if(!urlVal) {
+        showToast("⚠️ Missing Link", "Please paste or write a valid URL address.", true);
+        return;
+      }
+
+      // Automatically determine category based on web prefix or extension
+      let category = "images";
+      const u = urlVal.toLowerCase();
+      if (u.includes(".mp3") || u.includes(".wav") || u.includes(".ogg") || u.includes("audio")) {
+        category = "audio";
+      } else if (u.includes(".mp4") || u.includes(".webm") || u.includes(".mov") || u.includes("video")) {
+        category = "videos";
+      }
+
+      // Try file name parse
+      let name = "Web Site Asset Link";
+      try {
+        const parts = urlVal.split('/');
+        const last = parts[parts.length - 1];
+        if (last && last.includes('.')) {
+          name = last.split('?')[0];
+        }
+      } catch(e){}
+
+      const mediaId = "media_url_" + Date.now();
+      const newMediaItem = {
+        id: mediaId,
+        name: name,
+        category: category,
+        type: "url/link",
+        size: 0,
+        url: urlVal,
+        timestamp: Date.now()
+      };
+
+      if (window.FirebaseDb_saveMediaItem) {
+        window.FirebaseDb_saveMediaItem(newMediaItem)
+          .then(() => {
+            urlInput.value = "";
+            showToast("✨ Asset URL Synced", `Linked external asset "${name}" directly to Firebase!`);
+          })
+          .catch(err => {
+            showToast("❌ Sync Error", err.message, true);
+          });
+      } else {
+        showToast("❌ Offline", "Firebase synchronization service is pending.", true);
+      }
+    };
+
+    // Deletes item from synchronized database list
+    function deleteCustomMediaItem(itemId, fileName) {
+      if(confirm(`Are you sure you want to permanently delete current asset: ${fileName}?`)) {
+        if (window.FirebaseDb_deleteMediaItem) {
+          window.FirebaseDb_deleteMediaItem(itemId)
+            .then(() => {
+              showToast("🗑️ Media Item Deleted", `Deleted custom asset file ${fileName}.`);
+            })
+            .catch(err => {
+              showToast("❌ Deletion Failed", `Connection error: ${err.message}`, true);
+            });
+        }
+      }
+    }
+
+    // Broadcast transmit function
+    function quickTransmitMediaItem(item) {
+      if (window.FirebaseDb_transmitMedia) {
+        window.FirebaseDb_transmitMedia(item)
+          .then(() => {
+            // Build dynamic telemetry feedback
+            const tag = item.category === 'images' ? '🟢 IMAGE' : (item.category === 'audio' ? '🔊 AUDIO CUE' : '🎬 VIDEO CLIP');
+            showToast("🛰️ Quick Transmit Live", `${tag}: ${item.name} is now actively broadcast on live OBS monitor overlays!`);
+          })
+          .catch(err => {
+            showToast("❌ Transmission Offline", `Real-time channel broadcast error: ${err.message}`, true);
+          });
+      } else {
+        showToast("⚠️ Firebase Connection Pending", "Cannot transmit parameters until the live server handshakes successfully.", true);
+      }
+    }
+
+    // =========================================================================
+    // ===================== PHASE 3: OBS CONTROL ENGINE ======================
+    // =========================================================================
+
+    let loadedSlotsDatabase = [];
+    let currentEditingSlot = null;
+    let activeCastingSlotId = null;
+
+    // Relative Drag coordinates logic parameters
+    let isDraggingText = false;
+    let currentXPercent = 50;
+    let currentYPercent = 80;
+
+    // Preset base64 graphics for default layout builders
+    const defaultPlaceholderImage = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='250'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231e1b4b'/%3E%3Cstop offset='100%25' stop-color='%230f172a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='250' fill='url(%23g)' rx='16'/%3E%3Crect width='780' height='230' x='10' y='10' rx='12' fill='none' stroke='%233b82f6' stroke-width='4' stroke-opacity='0.4'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2364748b' font-family='sans-serif' font-size='24' font-weight='600'%3ET SPORTS GRAPHIC BED%3C/text%3E%3C/svg%3E";
+
+    // Synchronized listener for layout slots array
+    window.onSlotsUpdate = function(slotsArray) {
+      loadedSlotsDatabase = slotsArray || [];
+      
+      // Auto pre-populate default slots if none exist in Firebase yet (for magnificent initial user experience!)
+      if (loadedSlotsDatabase.length === 0) {
+        populateInitialDefaultSlots();
+        return;
+      }
+
+      document.getElementById("total-slots-lbl").innerText = `${loadedSlotsDatabase.length} Loaded`;
+      renderSlotsGrid();
+      syncEditorQuickMediaCarousel();
+    };
+
+    let tvCountdownInterval = null;
+
+    // Synchronized listener for active cast stream
+    window.onActiveCastUpdate = function(activeObj) {
+      const tvNoSignal = document.getElementById("tv-no-signal");
+      const tvLiveStage = document.getElementById("tv-live-stage");
+      const tvStageContent = document.getElementById("tv-stage-content");
+      const tvStageImage = document.getElementById("tv-stage-image");
+      const tvStageText = document.getElementById("tv-stage-text");
+      const tvCountdownText = document.getElementById("tv-countdown-text");
+      const tvStatusLed = document.getElementById("tv-status-led");
+
+      // Clear existing countdown intervals
+      if (tvCountdownInterval) {
+        clearInterval(tvCountdownInterval);
+        tvCountdownInterval = null;
+      }
+
+      if (activeObj && activeObj.type === 'trigger') {
+        activeCastingSlotId = activeObj.id;
+        const activeLabel = document.getElementById("active-cast-label");
+        const activePulse = document.getElementById("active-cast-pulse");
+        
+        if (activeLabel) {
+          activeLabel.innerText = ("LIVE: " + (activeObj.textOverlay || "Graphic Bed")).toUpperCase();
+          activeLabel.className = "mt-1 text-xs font-black text-green-400 font-sans uppercase truncate";
+        }
+        if (activePulse) {
+          activePulse.className = "w-3.5 h-3.5 rounded-full bg-red-500 border border-red-400 animate-ping shadow-[0_0_10px_#ef4444]";
+        }
+
+        // Show live stage on simulated TV monitor 
+        if (tvNoSignal) tvNoSignal.classList.add("hidden");
+        if (tvLiveStage) {
+          tvLiveStage.classList.remove("hidden");
+          tvLiveStage.classList.add("flex");
+        }
+        if (tvStatusLed) {
+          tvStatusLed.className = "w-2 h-2 rounded-full bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.8)] animate-pulse";
+        }
+
+        // Apply styled attributes to simulated TV
+        if (tvStageImage) {
+          tvStageImage.src = activeObj.image || defaultPlaceholderImage;
+        }
+
+        // Style the simulated TV container proportionally to fit television monitor frame
+        if (tvStageContent) {
+          const wPx = activeObj.imageWidth || 800;
+          const hPx = activeObj.imageHeight || 250;
+          const widthPercent = Math.min(100, Math.max(20, (wPx / 1500) * 100));
+          const heightPercent = Math.min(100, Math.max(15, (hPx / 1000) * 100));
+          tvStageContent.style.width = widthPercent + "%";
+          tvStageContent.style.height = heightPercent + "%";
+          
+          tvStageContent.style.borderRadius = ((activeObj.borderRadius || 0) * 0.35) + "px";
+          if (activeObj.shadowEffect === "drop") {
+            tvStageContent.style.boxShadow = "0 10px 25px rgba(0,0,0,0.6)";
+            tvStageContent.style.border = "none";
+          } else if (activeObj.shadowEffect === "neon") {
+            tvStageContent.style.boxShadow = "0 0 16px rgba(59,130,246,0.55)";
+            tvStageContent.style.border = "1px solid rgba(100,150,255,0.5)";
+          } else {
+            tvStageContent.style.boxShadow = "none";
+            tvStageContent.style.border = "none";
+          }
+
+          // Trigger entry transitions inside simulated room screen
+          tvStageContent.className = "relative overflow-hidden flex items-center justify-center transition-all duration-300";
+          void tvStageContent.offsetWidth; // Force redraw and reflow
+          if (activeObj.inAnimation) {
+            tvStageContent.classList.add(activeObj.inAnimation);
+          }
+        }
+
+        if (tvStageText) {
+          tvStageText.innerText = activeObj.textOverlay || "TEXT OVERLAY VALUE";
+          tvStageText.style.color = activeObj.textColor || "#ffffff";
+          tvStageText.style.fontFamily = activeObj.textFontFamily || "'Outfit', sans-serif";
+          tvStageText.style.fontSize = Math.min(28, Math.max(8, Math.round((activeObj.textFontSize || 36) * 0.22))) + "px";
+          tvStageText.style.left = (activeObj.textX !== undefined ? activeObj.textX : 50) + "%";
+          tvStageText.style.top = (activeObj.textY !== undefined ? activeObj.textY : 80) + "%";
+        }
+
+        // Setup Countdown Clock ticker in footer of simulated TV
+        let durationStr = String(activeObj.duration || 'none').trim().toLowerCase();
+        let secondsLeft = 0;
+        if (durationStr && durationStr !== '0' && durationStr !== 'none') {
+          if (durationStr.endsWith('s')) {
+            secondsLeft = parseInt(durationStr);
+          } else if (durationStr.endsWith('m')) {
+            secondsLeft = parseInt(durationStr) * 60;
+          } else {
+            secondsLeft = parseInt(durationStr);
+          }
+        }
+
+        if (secondsLeft > 0) {
+          if (tvCountdownText) {
+            tvCountdownText.innerText = `FADE OUT: ${secondsLeft}s`;
+            tvCountdownText.className = "text-yellow-400 font-mono";
+          }
+          tvCountdownInterval = setInterval(() => {
+            secondsLeft--;
+            if (secondsLeft <= 0) {
+              clearInterval(tvCountdownInterval);
+              if (tvCountdownText) {
+                tvCountdownText.innerText = "FADING OUT...";
+                tvCountdownText.className = "text-red-400 font-mono anim-pulse";
+              }
+              // Reflect exiting animation
+              if (tvStageContent && activeObj.outAnimation) {
+                tvStageContent.classList.add(activeObj.outAnimation);
+              }
+            } else {
+              if (tvCountdownText) {
+                tvCountdownText.innerText = `FADE OUT: ${secondsLeft}s`;
+              }
+            }
+          }, 1000);
+        } else {
+          if (tvCountdownText) {
+            tvCountdownText.innerText = "PERSISTENT CAST";
+            tvCountdownText.className = "text-zinc-550 font-mono";
+          }
+        }
+
+      } else {
+        activeCastingSlotId = null;
+        const activeLabel = document.getElementById("active-cast-label");
+        const activePulse = document.getElementById("active-cast-pulse");
+        
+        if (activeLabel) {
+          activeLabel.innerText = "NOT BROADCASTING";
+          activeLabel.className = "mt-1 text-xs font-black text-zinc-500 font-sans uppercase truncate";
+        }
+        if (activePulse) {
+          activePulse.className = "w-3.5 h-3.5 rounded-full bg-zinc-800 border border-zinc-700";
+        }
+
+        // Pull back simulated TV to standby
+        if (tvLiveStage) {
+          tvLiveStage.classList.add("hidden");
+          tvLiveStage.classList.remove("flex");
+        }
+        if (tvNoSignal) {
+          tvNoSignal.classList.remove("hidden");
+        }
+        if (tvStatusLed) {
+          tvStatusLed.className = "w-2 h-2 rounded-full bg-emerald-500/85 shadow-[0_0_8px_rgba(16,185,129,0.5)]";
+        }
+        if (tvCountdownText) {
+          tvCountdownText.innerText = "FADE OUT: none";
+          tvCountdownText.className = "text-zinc-500 font-mono";
+        }
+      }
+      
+      // Re-trigger layout grid rebuild to highlight active state card borders!
+      renderSlotsGrid();
+    };
+
+    // Prepopulate system with magnificent broadcasting templates
+    function populateInitialDefaultSlots() {
+      if (!window.FirebaseDb_saveSlotItem) return;
+
+      const initialTemplates = [
+        {
+          id: "slot_tpl_1",
+          name: "Main Lower Third Live",
+          image: "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='200'%3E%3Cdefs%3E%3ClinearGradient id='lg' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%2312141c'/%3E%3Cstop offset='100%25' stop-color='%2322c55e' stop-opacity='0.15'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='200' fill='url(%23lg)' rx='12'/%3E%3Crect width='792' height='192' x='4' y='4' fill='none' stroke='%233b82f6' stroke-width='2' rx='10' stroke-opacity='0.5'/%3E%3C/svg%3E",
+          imageWidth: 800,
+          imageHeight: 200,
+          text: "T SPORTS BROADCAST CONSOLE",
+          textX: 50,
+          textY: 80,
+          textColor: "#ffd700",
+          textFontSize: "34",
+          textFontFamily: "'Space Grotesk', sans-serif",
+          inAnimation: "anim-bottom-roller",
+          outAnimation: "exit-slide-down",
+          duration: "12s",
+          shadowEffect: "neon",
+          borderRadius: 12,
+          audioEnabled: true
+        },
+        {
+          id: "slot_tpl_2",
+          name: "Anchor Social Overlay",
+          image: "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='450' height='100'%3E%3Crect width='450' height='100' fill='%230f172a' stroke='%232563eb' stroke-width='3' rx='50'/%3E%3C/svg%3E",
+          imageWidth: 450,
+          imageHeight: 100,
+          text: "@TSportsBroadcast",
+          textX: 50,
+          textY: 75,
+          textColor: "#ffffff",
+          textFontSize: "24",
+          textFontFamily: "'JetBrains Mono', monospace",
+          inAnimation: "anim-3d-flip",
+          outAnimation: "exit-zoom-out",
+          duration: "18s",
+          shadowEffect: "drop",
+          borderRadius: 50,
+          audioEnabled: false
+        }
+      ];
+
+      initialTemplates.forEach(t => {
+        window.FirebaseDb_saveSlotItem(t);
+      });
+    }
+
+    // Build the dynamic Grid view of slots cards
+    function renderSlotsGrid() {
+      const parent = document.getElementById("slots-grid-parent");
+      if (!parent) return;
+
+      if (loadedSlotsDatabase.length === 0) {
+        parent.innerHTML = `
+          <div class="col-span-full text-center py-12 text-zinc-500 text-xs bg-black/20 rounded-2xl border border-zinc-850">
+            Click 'Add New Slot' above to design a custom broadcast overlay scene.
+          </div>
+        `;
+        return;
+      }
+
+      let gridHtml = "";
+      loadedSlotsDatabase.forEach(slot => {
+        const isLive = activeCastingSlotId === slot.id;
+        const liveBorderClass = isLive 
+          ? "border-green-500/80 shadow-[0_0_15px_rgba(34,197,94,0.15)] bg-zinc-900/90" 
+          : "border-zinc-800 bg-zinc-900/40 hover:border-zinc-700/60 transition-colors";
+
+        const textPreviewColor = slot.textColor || "#ffffff";
+        const textPreviewFont = slot.textFontFamily || "'Outfit', sans-serif";
+        const textPreviewSize = Math.max(10, Math.round((slot.textFontSize || 36) * 0.25)) + "px";
+
+        gridHtml += `
+          <div class="relative rounded-3xl border p-4 flex flex-col justify-between ${liveBorderClass} group">
+            
+            <!-- Dynamic Mini-Visual representation (Aesthetic thumbnail) -->
+            <div class="aspect-video bg-black/60 rounded-xl overflow-hidden relative flex items-center justify-center p-2 border border-zinc-950 pointer-events-none mb-3">
+              <!-- Inner content mockup -->
+              <div class="w-[85%] h-[60%] border border-dashed border-zinc-800 bg-zinc-900/20 relative flex items-center justify-center rounded" style="border-radius: ${slot.borderRadius ? slot.borderRadius * 0.15 : 0}px;">
+                <img class="w-full h-full object-contain opacity-40" src="${slot.image || defaultPlaceholderImage}">
+                <div class="absolute text-center truncate w-full font-black uppercase text-ellipsis px-1" style="color: ${textPreviewColor}; font-family: ${textPreviewFont}; font-size: ${textPreviewSize}; left: ${slot.textX || 50}%; top: ${slot.textY || 80}%; transform: translate(-50%, -50%);">
+                  ${slot.text || "TEXT OVERLAY"}
+                </div>
+              </div>
+              <span class="absolute top-1.5 right-1.5 text-[7.5px] font-mono bg-black/60 text-zinc-500 px-1 py-0.5 rounded uppercase">${slot.imageWidth || 800}x${slot.imageHeight || 250}</span>
+            </div>
+
+            <!-- Card Info -->
+            <div class="space-y-1 mb-4 select-none">
+              <div class="flex items-center justify-between">
+                <h5 onclick="inlineRenameSlot('${slot.id}', '${slot.name}')" class="text-xs font-black text-white hover:text-blue-400 cursor-pointer transition flex items-center gap-1 uppercase tracking-wide truncate pr-2" title="Click to rename slot">
+                  ${slot.name}
+                  <svg class="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity text-zinc-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
+                  </svg>
+                </h5>
+                <span class="text-[8px] border border-zinc-800 bg-[#0c0d12] text-zinc-500 px-1.5 py-0.5 rounded font-mono uppercase font-semibold truncate shrink-0" title="Selected Entrance Animation">${slot.inAnimation}</span>
+              </div>
+              <p class="text-[10px] text-zinc-500 font-mono leading-relaxed">Timer: <span class="text-zinc-300 font-bold">${slot.duration || 'none'}</span> · Radius: <span class="text-zinc-300">${slot.borderRadius || 0}px</span> · Audio: <span class="text-zinc-300">${slot.audioEnabled ? 'ON' : 'OFF'}</span></p>
+            </div>
+
+            <!-- Handler Controls Row -->
+            <div class="flex items-center gap-2 pt-1 border-t border-zinc-800/60 mt-1">
+              ${isLive 
+                ? `<button onclick="clearLiveBroadcast();" class="flex-grow bg-red-500 text-white hover:bg-red-400 font-extrabold py-2 px-3 rounded-lg text-[10px] uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1 select-none shadow-md shadow-red-500/10">
+                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                    TAKE OFFLINE
+                   </button>`
+                : `<button onclick="castSlotLive('${slot.id}');" class="flex-grow bg-gradient-to-r from-blue-600 to-blue-500 hover:opacity-90 text-white font-extrabold py-2 px-3 rounded-lg text-[10px] uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1 select-none">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 001.32-2.24 14.99 14.99 0 00-2.33-4.83m0 0a16.6 16.6 0 012.33-4.83 14.99 14.99 0 01-1.32-2.24m-12 11.2a6 6 0 005.84-7.38v4.8m0 0a16.61 16.61 0 00-2.33 4.83"/>
+                    </svg>
+                    CAST LIVE
+                   </button>`
+              }
+              <button onclick="openSlotEditor('${slot.id}');" class="bg-zinc-800 border border-zinc-750 text-zinc-300 hover:text-white px-2.5 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition active:scale-95 flex items-center gap-0.5 select-none" title="Design with canvas customization">
+                EDIT
+              </button>
+              <button onclick="deleteCustomSlot('${slot.id}', '${slot.name}');" class="bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-600 hover:text-white p-2 rounded-lg transition active:scale-95 flex items-center justify-center" title="Delete slot permanently">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      parent.innerHTML = gridHtml;
+    }
+
+    // Handles rapid renaming directly from double clicking the card title
+    function inlineRenameSlot(slotId, oldName) {
+      const newName = prompt(`Enter a new custom name for this layout slot card:`, oldName);
+      if (newName && newName.trim() !== "") {
+        const slot = loadedSlotsDatabase.find(s => s.id === slotId);
+        if (slot) {
+          slot.name = newName.trim();
+          if (window.FirebaseDb_saveSlotItem) {
+            window.FirebaseDb_saveSlotItem(slot)
+              .then(() => showToast("🏷️ Slot Renamed", `Configured new slot card identification label to: ${slot.name}`))
+              .catch(err => showToast("❌ Save Error", err.message, true));
+          }
+        }
+      }
+    }
+
+    // Creates a brand new workspace layout slot 
+    function createNewCustomSlot(slotName) {
+      if (!window.FirebaseDb_saveSlotItem) {
+        showToast("⚠️ Server Synchronizing", "Cannot add slots while system connection handshakes are pending.", true);
+        return;
+      }
+
+      const generatedId = "slot_" + Date.now();
+      const newSlotObj = {
+        id: generatedId,
+        name: slotName || `Custom Slot ${loadedSlotsDatabase.length + 1}`,
+        image: defaultPlaceholderImage,
+        imageWidth: 800,
+        imageHeight: 250,
+        text: "DYNAMIC STREAM TOPIC LINE",
+        textX: 50,
+        textY: 80,
+        textColor: "#ffffff",
+        textFontSize: "36",
+        textFontFamily: "'Inter', sans-serif",
+        inAnimation: "anim-cinematic",
+        outAnimation: "exit-fade-out",
+        duration: "10s",
+        shadowEffect: "none",
+        borderRadius: 12,
+        audioEnabled: true
+      };
+
+      window.FirebaseDb_saveSlotItem(newSlotObj)
+        .then(() => {
+          showToast("✨ Layout Slot Created", `Successfully deployed brand new layout slots deck card into Realtime database!`);
+          openSlotEditor(generatedId);
+        })
+        .catch(err => {
+          showToast("❌ Creation Failed", err.message, true);
+        });
+    }
+
+    // Deletes slot card securely
+    function deleteCustomSlot(slotId, name) {
+      if (!window.FirebaseDb_deleteSlotItem) return;
+
+      if (confirm(`Do you wish to completely wipe Layout Slot: "${name}"? This removes its saved canvas matrix from Firebase.`)) {
+        window.FirebaseDb_deleteSlotItem(slotId)
+          .then(() => {
+            showToast("🗑️ Slot Wiped Successfully", `Purged slot "${name}" from all synchronized decks.`);
+            if (activeCastingSlotId === slotId) {
+              clearLiveBroadcast();
+            }
+          })
+          .catch(err => showToast("❌ Failed to Wipe", err.message, true));
+      }
+    }
+
+    // Broadcasts slot payload live to on air display overlay screen
+    function castSlotLive(slotId) {
+      if (!window.FirebaseDb_castSlotLive) {
+        showToast("⚠️ Firebase Pending", "Your firebase systems cannot transmit right now. Standby.", true);
+        return;
+      }
+
+      const slot = loadedSlotsDatabase.find(s => s.id === slotId);
+      if (slot) {
+        window.FirebaseDb_castSlotLive(slot)
+          .then(() => {
+            // Trigger local fallbacks/broadcast for immediate adjacent mirrors
+            try {
+              const localPayload = {
+                type: 'trigger',
+                image: slot.image,
+                textOverlay: slot.text || '',
+                textX: slot.textX,
+                textY: slot.textY,
+                textColor: slot.textColor,
+                textFontSize: slot.textFontSize,
+                textFontFamily: slot.textFontFamily,
+                imageWidth: slot.imageWidth,
+                imageHeight: slot.imageHeight,
+                inAnimation: slot.inAnimation,
+                outAnimation: slot.outAnimation,
+                duration: slot.duration,
+                shadowEffect: slot.shadowEffect,
+                borderRadius: slot.borderRadius,
+                audioEnabled: slot.audioEnabled === true || slot.audioEnabled === 'true',
+                timestamp: Date.now()
+              };
+              
+              localStorage.setItem("obs_stream_payload", JSON.stringify(localPayload));
+              
+              const channels = new BroadcastChannel("obs_broadcasting_bus");
+              channels.postMessage(localPayload);
+              channels.close();
+            } catch(e) {
+              console.warn("Adjacent stream broadcasting fellback normally:", e);
+            }
+
+            showToast("🛰️ CASTING SLOT LIVE", `Layout is active on OBS! Audio Swoosh cue triggers on stream entry.`);
+          })
+          .catch(err => showToast("❌ Broadcast Fault", err.message, true));
+      }
+    }
+
+    // Clear broadcast live status cleanly
+    function clearLiveBroadcast() {
+      if (window.FirebaseDb_clearActiveCast) {
+        window.FirebaseDb_clearActiveCast()
+          .then(() => {
+            try {
+              const clearPayload = { type: 'clear', timestamp: Date.now() };
+              localStorage.setItem("obs_stream_payload", JSON.stringify(clearPayload));
+              const channels = new BroadcastChannel("obs_broadcasting_bus");
+              channels.postMessage(clearPayload);
+              channels.close();
+            } catch(e) {}
+            
+            showToast("🔇 Live Broadcast Cleared", "OBS overlay stage displays returned to standby state.");
+          })
+          .catch(err => showToast("❌ Clearing Handshake Failed", err.message, true));
+      }
+    }
+
+    // Opens Customizer Studio UI
+    function openSlotEditor(slotId) {
+      const slot = loadedSlotsDatabase.find(s => s.id === slotId);
+      if (!slot) return;
+
+      // Duplicate the chosen object mapping so modifications don't instantly corrupt database until saved explicitly
+      currentEditingSlot = JSON.parse(JSON.stringify(slot));
+
+      document.getElementById("editing-slot-title-badge").innerText = currentEditingSlot.name.toUpperCase();
+      
+      // Load inputs value
+      document.getElementById("editor-text-overlay").value = currentEditingSlot.text || "";
+      document.getElementById("editor-text-color").value = currentEditingSlot.textColor || "#ffffff";
+      document.getElementById("editor-text-color-hex").value = currentEditingSlot.textColor || "#ffffff";
+      document.getElementById("editor-text-font").value = currentEditingSlot.textFontFamily || "'Outfit', sans-serif";
+      document.getElementById("editor-text-fontsize").value = currentEditingSlot.textFontSize || "36";
+      document.getElementById("editor-image-url").value = currentEditingSlot.image || "";
+      
+      document.getElementById("editor-image-width").value = currentEditingSlot.imageWidth || "800";
+      document.getElementById("editor-image-height").value = currentEditingSlot.imageHeight || "250";
+      
+      document.getElementById("editor-in-animation").value = currentEditingSlot.inAnimation || "anim-cinematic";
+      document.getElementById("editor-out-animation").value = currentEditingSlot.outAnimation || "exit-fade-out";
+      document.getElementById("editor-duration").value = currentEditingSlot.duration || "10s";
+      document.getElementById("editor-borderradius").value = currentEditingSlot.borderRadius || "12";
+      document.getElementById("editor-shadow-effect").value = currentEditingSlot.shadowEffect || "none";
+      document.getElementById("editor-audio").value = String(currentEditingSlot.audioEnabled !== false);
+
+      // Load coordinate values
+      currentXPercent = currentEditingSlot.textX !== undefined ? currentEditingSlot.textX : 50;
+      currentYPercent = currentEditingSlot.textY !== undefined ? currentEditingSlot.textY : 80;
+
+      document.getElementById("editor-text-x-lbl").innerText = currentXPercent + "%";
+      document.getElementById("editor-text-y-lbl").innerText = currentYPercent + "%";
+
+      // Refresh representation blueprint visual styling
+      recalculateCanvasMockupStyles();
+
+      // Trigger Touch drag listeners binder instantly once
+      setTimeout(() => {
+        initDragHandlersForTexts();
+      }, 100);
+
+      // Slide views
+      document.getElementById("slots-list-view").classList.add("hidden");
+      const editorView = document.getElementById("slots-editor-view");
+      editorView.classList.remove("hidden");
+      editorView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Handles coordinates blueprint styles matching
+    function recalculateCanvasMockupStyles() {
+      if (!currentEditingSlot) return;
+
+      const mockBox = document.getElementById("canvas-stage-content");
+      const mockImage = document.getElementById("canvas-stage-image");
+      const mockText = document.getElementById("canvas-stage-text");
+
+      if (!mockBox || !mockText || !mockImage) return;
+
+      // Map width and height proportionally in aspect-video box helper ratio
+      const wPx = currentEditingSlot.imageWidth || 800;
+      const hPx = currentEditingSlot.imageHeight || 250;
+
+      // Display numeric slide labels
+      document.getElementById("editor-width-lbl").innerText = wPx + "px";
+      document.getElementById("editor-height-lbl").innerText = hPx + "px";
+      document.getElementById("editor-font-size-lbl").innerText = (currentEditingSlot.textFontSize || 36) + "px";
+
+      // Map layout bounds width percents
+      const widthPercent = Math.min(100, Math.max(20, (wPx / 1500) * 100));
+      const heightPercent = Math.min(100, Math.max(15, (hPx / 1000) * 100));
+
+      mockBox.style.width = widthPercent + "%";
+      mockBox.style.height = heightPercent + "%";
+
+      // Apply border radius and shadows mockup
+      mockBox.style.borderRadius = (currentEditingSlot.borderRadius || 12) * 0.5 + "px";
+      
+      if (currentEditingSlot.shadowEffect === "drop") {
+        mockBox.style.boxShadow = "0 10px 25px rgba(0,0,0,0.6)";
+      } else if (currentEditingSlot.shadowEffect === "neon") {
+        mockBox.style.boxShadow = "0 0 16px rgba(59,130,246,0.55)";
+      } else {
+        mockBox.style.boxShadow = "none";
+      }
+
+      // Sync image URL
+      mockImage.src = currentEditingSlot.image || defaultPlaceholderImage;
+
+      // Sync texts overlay styles
+      mockText.innerText = currentEditingSlot.text || "TEXT OVERLAY VALUE";
+      mockText.style.color = currentEditingSlot.textColor || "#ffffff";
+      mockText.style.fontFamily = currentEditingSlot.textFontFamily || "'Outfit', sans-serif";
+      mockText.style.fontSize = Math.min(48, Math.max(10, Math.round((currentEditingSlot.textFontSize || 36) * 0.35))) + "px";
+      
+      // Calculate coordinates positioning percentage style tags
+      mockText.style.left = currentXPercent + "%";
+      mockText.style.top = currentYPercent + "%";
+    }
+
+    // Touch feedback drag n drop controller logic
+    function initDragHandlersForTexts() {
+      const parent = document.getElementById("canvas-stage-content");
+      const textOverlay = document.getElementById("canvas-stage-text");
+      if(!parent || !textOverlay) return;
+
+      const onStart = () => {
+        isDraggingText = true;
+      };
+
+      const onMove = (clientX, clientY) => {
+        if (!isDraggingText) return;
+        const rect = parent.getBoundingClientRect();
+
+        let lX = clientX - rect.left;
+        let lY = clientY - rect.top;
+
+        // Constraint coordinates
+        if (lX < 0) lX = 0;
+        if (lX > rect.width) lX = rect.width;
+        if (lY < 0) lY = 0;
+        if (lY > rect.height) lY = rect.height;
+
+        currentXPercent = Math.round((lX / rect.width) * 100);
+        currentYPercent = Math.round((lY / rect.height) * 100);
+
+        textOverlay.style.left = currentXPercent + "%";
+        textOverlay.style.top = currentYPercent + "%";
+
+        document.getElementById("editor-text-x-lbl").innerText = currentXPercent + "%";
+        document.getElementById("editor-text-y-lbl").innerText = currentYPercent + "%";
+
+        // Feed coordinate adjustments directly into memory
+        if (currentEditingSlot) {
+          currentEditingSlot.textX = currentXPercent;
+          currentEditingSlot.textY = currentYPercent;
+        }
+      };
+
+      const onEnd = () => {
+        isDraggingText = false;
+      };
+
+      // Mouse drag handlers
+      textOverlay.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        onStart();
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if(isDraggingText) {
+          onMove(e.clientX, e.clientY);
+        }
+      });
+
+      window.addEventListener("mouseup", onEnd);
+
+      // Mobile Touch events
+      textOverlay.addEventListener("touchstart", (e) => {
+        if (e.touches.length > 0) {
+          e.preventDefault(); 
+          onStart();
+        }
+      }, { passive: false });
+
+      window.addEventListener("touchmove", (e) => {
+        if (isDraggingText && e.touches.length > 0) {
+          e.preventDefault();
+          onMove(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: false });
+
+      window.addEventListener("touchend", onEnd);
+    }
+
+    // Sync input controls actions with canvas markup real-time representators
+    function syncEditorText(val) {
+      if(!currentEditingSlot) return;
+      currentEditingSlot.text = val;
+      const target = document.getElementById("canvas-stage-text");
+      if(target) target.innerText = val || "TEXT OVERLAY VALUE";
+    }
+
+    function syncEditorTextColor(hexVal) {
+      if(!currentEditingSlot) return;
+      currentEditingSlot.textColor = hexVal;
+      document.getElementById("editor-text-color").value = hexVal;
+      document.getElementById("editor-text-color-hex").value = hexVal.toUpperCase();
+      const target = document.getElementById("canvas-stage-text");
+      if(target) target.style.color = hexVal;
+    }
+
+    function syncEditorTextFont(fontFamily) {
+      if(!currentEditingSlot) return;
+      currentEditingSlot.textFontFamily = fontFamily;
+      const target = document.getElementById("canvas-stage-text");
+      if(target) target.style.fontFamily = fontFamily;
+    }
+
+    function syncEditorTextSize(sizeVal) {
+      if(!currentEditingSlot) return;
+      currentEditingSlot.textFontSize = sizeVal;
+      document.getElementById("editor-font-size-lbl").innerText = sizeVal + "px";
+      const target = document.getElementById("canvas-stage-text");
+      if(target) target.style.fontSize = Math.min(48, Math.max(10, Math.round(sizeVal * 0.35))) + "px";
+    }
+
+    function syncEditorImage(urlVal) {
+      if(!currentEditingSlot) return;
+      currentEditingSlot.image = urlVal;
+      const target = document.getElementById("canvas-stage-image");
+      if(target) target.src = urlVal || defaultPlaceholderImage;
+    }
+
+    // Direct width representation 
+    function syncEditorWidth(w) {
+      if(!currentEditingSlot) return;
+      currentEditingSlot.imageWidth = parseInt(w);
+      recalculateCanvasMockupStyles();
+    }
+
+    // Direct height representation
+    function syncEditorHeight(h) {
+      if(!currentEditingSlot) return;
+      currentEditingSlot.imageHeight = parseInt(h);
+      recalculateCanvasMockupStyles();
+    }
+
+    // Radius
+    function syncEditorRadius(r) {
+      if(!currentEditingSlot) return;
+      currentEditingSlot.borderRadius = parseInt(r);
+      const target = document.getElementById("canvas-stage-content");
+      if(target) target.style.borderRadius = parseInt(r) * 0.5 + "px";
+    }
+
+    // Shadow mapping
+    function syncEditorShadow(shadowSetting) {
+      if(!currentEditingSlot) return;
+      currentEditingSlot.shadowEffect = shadowSetting;
+      recalculateCanvasMockupStyles();
+    }
+
+    // Handles mobile photo select upload and conversion into compact base64 strings
+    function triggerSlotImageFile() {
+      document.getElementById("slot-file-input").click();
+    }
+
+    function processSlotImageUpload(files) {
+      if(files.length === 0) return;
+      const file = files[0];
+      
+      if(file.size > 1000 * 1024) {
+        showToast("⚠️ Asset Size Notice", "Select an image under 1MB to ensure stable synchronization matrix transfers.", true);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const b64 = e.target.result;
+        syncEditorImage(b64);
+        document.getElementById("editor-image-url").value = b64;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Writes configurations back to Firebase
+    function writeCurrentEditorToDatabase() {
+      if (!currentEditingSlot || !window.FirebaseDb_saveSlotItem) return;
+
+      // Extract details
+      currentEditingSlot.text = document.getElementById("editor-text-overlay").value;
+      currentEditingSlot.textColor = document.getElementById("editor-text-color").value;
+      currentEditingSlot.textFontFamily = document.getElementById("editor-text-font").value;
+      currentEditingSlot.textFontSize = parseInt(document.getElementById("editor-text-fontsize").value);
+      currentEditingSlot.image = document.getElementById("editor-image-url").value;
+      currentEditingSlot.imageWidth = parseInt(document.getElementById("editor-image-width").value);
+      currentEditingSlot.imageHeight = parseInt(document.getElementById("editor-image-height").value);
+      currentEditingSlot.inAnimation = document.getElementById("editor-in-animation").value;
+      currentEditingSlot.outAnimation = document.getElementById("editor-out-animation").value;
+      currentEditingSlot.duration = document.getElementById("editor-duration").value;
+      currentEditingSlot.borderRadius = parseInt(document.getElementById("editor-borderradius").value);
+      currentEditingSlot.shadowEffect = document.getElementById("editor-shadow-effect").value;
+      currentEditingSlot.audioEnabled = document.getElementById("editor-audio").value === "true";
+
+      // Relative percentages already loaded on drag interaction completion
+      currentEditingSlot.textX = currentXPercent;
+      currentEditingSlot.textY = currentYPercent;
+
+      window.FirebaseDb_saveSlotItem(currentEditingSlot)
+        .then(() => {
+          showToast("💾 Layout Saved", `Saved "${currentEditingSlot.name}" parameters securely inside active database nodes.`);
+        })
+        .catch(err => {
+          showToast("❌ Database Error", err.message, true);
+        });
+    }
+
+    // Saves and casts live instantly from within editor
+    function goLiveDirectFromEditor() {
+      writeCurrentEditorToDatabase();
+      setTimeout(() => {
+        castSlotLive(currentEditingSlot.id);
+      }, 100);
+    }
+
+    // Exits and saves current slot progress automatically
+    function exitSlotEditorAndSave() {
+      writeCurrentEditorToDatabase();
+      document.getElementById("slots-editor-view").classList.add("hidden");
+      document.getElementById("slots-list-view").classList.remove("hidden");
+      currentEditingSlot = null;
+    }
+
+    // Generates quick picker gallery loop inside editor
+    function syncEditorQuickMediaCarousel() {
+      const container = document.getElementById("quick-media-select-parent");
+      if (!container) return;
+
+      // Load image category items
+      const imagesList = loadedMediaDatabase.filter(m => m.category === 'images');
+      if (imagesList.length === 0) {
+        container.innerHTML = `<span class="text-xs text-zinc-650 font-mono py-1">No uploaded media backgrounds found.</span>`;
+        return;
+      }
+
+      let carouselHtml = "";
+      imagesList.forEach(m => {
+        carouselHtml += `
+          <button onclick="applyMediaAsSlotBackground('${m.url}')" class="h-14 w-20 rounded-lg bg-black/60 border border-zinc-800 hover:border-blue-500 overflow-hidden shrink-0 transition relative group select-none">
+            <img class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform" src="${m.url}">
+            <span class="absolute bottom-0 inset-x-0 text-[6.5px] bg-black/80 font-mono text-zinc-400 p-0.5 whitespace-nowrap truncate text-center">${m.name}</span>
+          </button>
+        `;
+      });
+      container.innerHTML = carouselHtml;
+    }
+
+    // Triggers direct application of gallery asset 
+    window.applyMediaAsSlotBackground = function(url) {
+      if(!currentEditingSlot) return;
+      syncEditorImage(url);
+      document.getElementById("editor-image-url").value = url;
+      showToast("⚡ Quick Apply Background", "Selected photo is loaded into editor mockup frame successfully.");
+    };
+
+    // Beautiful animation preview system
+    window.previewSelectedInAnimation = function() {
+      const contentBox = document.getElementById("canvas-stage-content");
+      if(!contentBox) return;
+
+      const animPresetClass = document.getElementById("editor-in-animation").value;
+      
+      // Temporarily inject styling to simulate live stream entry
+      contentBox.className = "relative overflow-hidden flex items-center justify-center border border-dashed border-zinc-700 bg-zinc-900/45";
+      void contentBox.offsetWidth; // Force synchronous reflow to ensure the DOM animation plays
+      contentBox.classList.add(animPresetClass);
+    };
+
+  </script>
+
 </body>
 </html>
