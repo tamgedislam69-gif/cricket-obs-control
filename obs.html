@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OBS Engine Master</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { background: transparent !important; overflow: hidden; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+    #obs-position-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0; pointer-events: none; transition: opacity 0.2s ease-out; }
+    #obs-animation-wrapper { display: flex; align-items: center; justify-content: center; transform-origin: center center; }
+    #obs-inner-bevel { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }
+    #obs-media-img { width: 100%; height: 100%; object-fit: contain; position: absolute; z-index: 1; }
+    #obs-text-overlay { position: absolute; bottom: 8%; z-index: 2; width: 90%; text-align: center; color: white; font-size: 2.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 5px 15px rgba(0,0,0,0.9), 0 2px 5px rgba(0,0,0,0.8); }
+    .fx-none { box-shadow: none; border: none; }
+    .fx-drop { box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+    .fx-neon { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 60px rgba(59, 130, 246, 0.4); border: 2px solid rgba(100, 150, 255, 0.8); }
+    @keyframes anim-cinematic { 0% { transform: scale(1.3); filter: brightness(0.2); opacity: 0; } 100% { transform: scale(1); filter: brightness(1); opacity: 1; } } .anim-cinematic { animation: anim-cinematic 2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
+    @keyframes anim-3d-flip { 0% { transform: perspective(1200px) rotateY(-90deg); opacity: 0; } 100% { transform: perspective(1200px) rotateY(0deg); opacity: 1; } } .anim-3d-flip { animation: anim-3d-flip 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes anim-elastic-bounce { 0% { transform: translateY(-100vh); opacity: 0; } 50% { transform: translateY(12%); opacity: 1; } 75% { transform: translateY(-6%); opacity: 1; } 100% { transform: translateY(0); opacity: 1; } } .anim-elastic-bounce { animation: anim-elastic-bounce 0.9s cubic-bezier(0.28, 0.84, 0.42, 1) forwards; }
+    @keyframes anim-neon-fade { 0% { opacity: 0; filter: drop-shadow(0 0 50px rgba(0,255,255,1)) brightness(1.5); } 100% { opacity: 1; filter: drop-shadow(0 0 0px transparent) brightness(1); } } .anim-neon-fade { animation: anim-neon-fade 1.2s ease-out forwards; }
+    @keyframes anim-bottom-roller { 0% { transform: translateY(100vh) rotate(-15deg); opacity: 0; } 100% { transform: translateY(0) rotate(0); opacity: 1; } } .anim-bottom-roller { animation: anim-bottom-roller 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes anim-skew-stretch { 0% { transform: translateX(-100vw) skewX(-25deg) scaleX(1.4); opacity: 0; } 100% { transform: translateX(0) skewX(0) scaleX(1); opacity: 1; } } .anim-skew-stretch { animation: anim-skew-stretch 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes anim-top-drop { 0% { transform: translateY(-100vh); opacity: 0; } 60% { transform: translateY(0); opacity: 1; } 75% { transform: rotate(-5deg); opacity: 1; } 90% { transform: rotate(5deg); opacity: 1; } 100% { transform: rotate(0); opacity: 1; } } .anim-top-drop { animation: anim-top-drop 0.9s ease-out forwards; }
+    @keyframes anim-flash-glitch { 0% { transform: translateX(30%) scale(1.1); filter: hue-rotate(90deg) contrast(2); opacity: 0; } 20% { transform: translateX(-15%); filter: hue-rotate(-90deg) contrast(1.5); opacity: 1; } 40% { transform: translateX(10%); filter: hue-rotate(45deg); opacity: 0.8; } 60% { transform: translateX(-5%); filter: hue-rotate(-45deg); opacity: 1; } 100% { transform: translateX(0) scale(1); filter: none; opacity: 1; } } .anim-flash-glitch { animation: anim-flash-glitch 0.6s linear forwards; }
+    @keyframes anim-diagonal-wave { 0% { transform: translate(-250px, -250px) rotate(-45deg); opacity: 0; } 100% { transform: translate(0, 0) rotate(0deg); opacity: 1; } } .anim-diagonal-wave { animation: anim-diagonal-wave 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes anim-heartbeat { 0% { transform: scale(0.6); opacity: 0; } 40% { transform: scale(1.15); opacity: 1; } 60% { transform: scale(0.95); opacity: 1; } 80% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } } .anim-heartbeat { animation: anim-heartbeat 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes anim-split-horizon { 0% { transform: scaleY(0); filter: blur(10px); opacity: 0; } 100% { transform: scaleY(1); filter: blur(0); opacity: 1; } } .anim-split-horizon { animation: anim-split-horizon 1s cubic-bezier(0.86, 0, 0.07, 1) forwards; }
+    @keyframes anim-blur-focus { 0% { filter: blur(40px); transform: scale(1.1); opacity: 0; } 100% { filter: blur(0); transform: scale(1); opacity: 1; } } .anim-blur-focus { animation: anim-blur-focus 1.2s ease-out forwards; }
+    @keyframes anim-spiral-vortex { 0% { transform: scale(0) rotate(-720deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } } .anim-spiral-vortex { animation: anim-spiral-vortex 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes anim-elegant-curtain { 0% { transform: translateX(100vw); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } } .anim-elegant-curtain { animation: anim-elegant-curtain 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes anim-corner-snap { 0% { transform: translate(50vw, 50vh) rotate(45deg) scale(0.5); opacity: 0; } 100% { transform: translate(0, 0) rotate(0) scale(1); opacity: 1; } } .anim-corner-snap { animation: anim-corner-snap 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes exit-fade-out { to { opacity: 0; } } .exit-fade-out { animation: exit-fade-out 0.6s ease forwards; }
+    @keyframes exit-slide-down { to { transform: translateY(100vh); opacity: 0; } } .exit-slide-down { animation: exit-slide-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes exit-zoom-out { to { transform: scale(0.5); opacity: 0; filter: blur(10px); } } .exit-zoom-out { animation: exit-zoom-out 0.7s ease-in forwards; }
+    @keyframes exit-3d-flip { to { transform: perspective(1200px) rotateY(90deg); opacity: 0; } } .exit-3d-flip { animation: exit-3d-flip 0.7s ease-in forwards; }
+    @keyframes exit-bounce-out { 20% { transform: scale(1.1); } 100% { transform: scale(0); opacity: 0; } } .exit-bounce-out { animation: exit-bounce-out 0.6s ease forwards; }
+  </style>
+</head>
+<body>
+  <div id="obs-position-wrapper"><div id="obs-animation-wrapper"><div id="obs-inner-bevel"><img id="obs-media-img" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="><div id="obs-text-overlay"></div></div></div></div>
+  <script>
+    const bc = new BroadcastChannel('obs_stream_channel');
+    const posW = document.getElementById("obs-position-wrapper");
+    const animW = document.getElementById("obs-animation-wrapper");
+    const innerB = document.getElementById("obs-inner-bevel");
+    const imgM = document.getElementById("obs-media-img");
+    const txtO = document.getElementById("obs-text-overlay");
+    let exitTimer=null; let extAnimStr='exit-fade-out'; let slotTracking=null;
+
+    function wipe() { if(exitTimer) clearTimeout(exitTimer); posW.style.opacity="0"; animW.className=""; }
+    function playSwoosh() {
+      try { const actx=new (window.AudioContext||window.webkitAudioContext)(); const osc=actx.createOscillator(); const gain=actx.createGain();
+      osc.connect(gain); gain.connect(actx.destination); osc.type='triangle'; osc.frequency.setValueAtTime(400,actx.currentTime); osc.frequency.exponentialRampToValueAtTime(50,actx.currentTime+0.6);
+      gain.gain.setValueAtTime(0.4,actx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01,actx.currentTime+0.6); osc.start(); osc.stop(actx.currentTime+0.6); } catch(e){}
+    }
+    function exitOut() { animW.className=extAnimStr; bc.postMessage({type:'obs_cleared', slotId:slotTracking}); setTimeout(()=>posW.style.opacity="0", 1000); }
+
+    function handleCommand(d) {
+      if(!d) return;
+      if(d.type==='clear') { exitOut(); return; }
+      if(d.type==='trigger') {
+        wipe(); extAnimStr=d.exitAnimation||'exit-fade-out'; let w=d.width||800; let h=d.height||600; slotTracking=d.slotId;
+        innerB.style.borderRadius=(d.borderRadius||0)+'px'; innerB.className=d.shadowEffect?('fx-'+d.shadowEffect):'fx-none';
+        if(d.image) {
+          imgM.src=d.image; txtO.innerText=d.textOverlay||"";
+          innerB.style.width=w+'px'; innerB.style.height=h+'px'; animW.style.width=w+'px'; animW.style.height=h+'px';
+          void animW.offsetWidth; posW.style.opacity="1"; animW.className=d.animation||"anim-cinematic";
+          if(d.audioEnabled) playSwoosh();
+          if(d.autoHide>0) exitTimer=setTimeout(exitOut, d.autoHide*1000);
+          bc.postMessage({type:'obs_started', slotId:slotTracking, image:d.image, width:w, height:h, text:txtO.innerText, br:innerB.style.borderRadius, fx:innerB.className});
+        }
+      }
+    }
+    bc.onmessage=(e)=>handleCommand(e.data);
+    try { const cache=localStorage.getItem('obs_stream_payload'); if(cache) handleCommand(JSON.parse(cache)); } catch(e){}
+    window.addEventListener('storage',(e)=>{ if(e.key==='obs_stream_payload') { try {handleCommand(JSON.parse(e.newValue));} catch(err){} }});
+  </script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@400;600;700;800&display=swap');
+
+@theme {
+  --font-sans: "Outfit", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Base body reset for OBS transparent streaming overlay compatibility */
+body {
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  background-color: transparent; /* Essential for OBS translucent browser sources */
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+/* Control panel dashboard-specific bg override (won't affect OBS overlay because we style it locally or via .dashboard-bg) */
+.dashboard-bg {
+  background: radial-gradient(circle at 50% 50%, #151821, #0a0b0e 90%), #060709;
+  min-height: 100vh;
+}
+
+/* --- T Sports Branding Inspired Styling --- */
+:root {
+  --tsports-red: #d90429;
+  --tsports-red-glow: rgba(217, 4, 41, 0.6);
+  --tsports-neon-yellow: #f1c40f;
+  --tsports-neon-glow: rgba(241, 196, 15, 0.4);
+  --tsports-carbon: #12141c;
+  --tsports-carbon-light: #1c1f2e;
+  --tsports-glass-border: rgba(255, 255, 255, 0.08);
+}
+
+/* Custom Sports Slanted Clipping Angle */
+.skew-clip {
+  clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+}
+
+.skew-clip-reverse {
+  clip-path: polygon(0% 0%, calc(100% - 10px) 0%, 100% 100%, 10px 100%);
+}
+
+.skew-clip-left {
+  clip-path: polygon(15px 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+.skew-clip-right {
+  clip-path: polygon(0% 0%, calc(100% - 15px) 0%, 100% 100%, 0% 100%);
+}
+
+/* Carbon Fiber sport pattern overlay */
+.carbon-pattern {
+  background-color: var(--tsports-carbon);
+  background-image: linear-gradient(45deg, #0d0e14 25%, transparent 25%), 
+                    linear-gradient(-45deg, #0d0e14 25%, transparent 25%), 
+                    linear-gradient(45deg, transparent 75%, #0d0e14 75%), 
+                    linear-gradient(-45deg, transparent 75%, #0d0e14 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+}
+
+/* Glow effects */
+.glow-red {
+  box-shadow: 0 0 15px var(--tsports-red-glow);
+  border: 1px solid var(--tsports-red);
+}
+
+.glow-yellow {
+  box-shadow: 0 0 15px var(--tsports-neon-glow);
+  border: 1px solid var(--tsports-neon-yellow);
+}
+
+.glow-text-red {
+  text-shadow: 0 0 8px var(--tsports-red-glow);
+}
+
+.glow-text-yellow {
+  text-shadow: 0 0 8px var(--tsports-neon-glow);
+}
+
+.neon-border-red {
+  border-left: 4px solid var(--tsports-red);
+  position: relative;
+}
+
+.neon-border-red::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -4px;
+  bottom: 0;
+  width: 4px;
+  background: var(--tsports-red);
+  filter: blur(4px);
+}
+
+/* Glassmorphism panel for broadcast items */
+.broadcast-glass {
+  background: rgba(14, 16, 24, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--tsports-glass-border);
+}
+
+/* --- Smooth Animations for Sports Graphics --- */
+
+/* Badge Pulse scale */
+@keyframes badge-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pulse-badge {
+  animation: badge-pulse 2s infinite ease-in-out;
+}
+
+/* Slide in from bottom (for Scoreboard / Lower-Third) */
+@keyframes slide-in-bottom {
+  0% {
+    transform: translateY(120px) scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-bottom {
+  animation: slide-in-bottom 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Slide out to bottom */
+@keyframes slide-out-bottom {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(120px) scale(0.95);
+    opacity: 0;
+  }
+}
+
+.animate-slide-out-bottom {
+  animation: slide-out-bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Swipe In transition cover */
+@keyframes swipe-in {
+  0% { transform: skewX(-15deg) translateX(-100%); }
+  50% { transform: skewX(-15deg) translateX(0%); }
+  100% { transform: skewX(-15deg) translateX(100%); }
+}
+
+.overlay-swipe {
+  position: absolute;
+  top: 0;
+  left: -20%;
+  width: 140%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--tsports-red), var(--tsports-neon-yellow), transparent);
+  transform: skewX(-15deg) translateX(-100%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.trigger-swipe {
+  animation: swipe-in 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+}
+
+/* flash glow trigger */
+@keyframes flash-glow {
+  0% { background-color: rgba(217, 4, 41, 0.2); }
+  50% { background-color: rgba(217, 4, 41, 1); box-shadow: 0 0 30px var(--tsports-red-glow); }
+  100% { background-color: rgba(217, 4, 41, 0.2); }
+}
+
+.flash-wicket {
+  animation: flash-glow 0.8s ease-in-out 3;
+}
+
+@keyframes flash-glow-yellow {
+  0% { background-color: rgba(241, 196, 15, 0.2); }
+  50% { background-color: rgba(241, 196, 15, 1); box-shadow: 0 0 30px var(--tsports-neon-glow); }
+  100% { background-color: rgba(241, 196, 15, 0.2); }
+}
+
+.flash-boundary {
+  animation: flash-glow-yellow 0.6s ease-in-out 4;
+}
+
+/* Slide from left for Player Stat Bar */
+@keyframes slide-in-left {
+  0% {
+    transform: translateX(-150px) skewX(-10deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) skewX(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom scrollbars for control panel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--tsports-carbon);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--tsports-red);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff2a4b;
+}

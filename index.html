@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMS Studio Production Core</title>
+  <link rel="stylesheet" href="/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Outfit', sans-serif; background-color: #030303; color: #f4f4f5; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #09090b; } ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+    .live-slot { border-color: #ef4444 !important; box-shadow: 0 0 30px rgba(239, 68, 68, 0.25) !important; background-color: rgba(239, 68, 68, 0.05); }
+    .live-btn { background-color: #ef4444 !important; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .fx-drop { box-shadow: 0 5px 15px rgba(0,0,0,0.8); }
+    .fx-neon { box-shadow: 0 0 10px rgba(59, 130, 246, 0.8); border: 2px solid rgba(100, 150, 255, 0.8); }
+    .neon-panel { box-shadow: 0 0 30px rgba(59,130,246,0.05), inset 0 0 10px rgba(255,255,255,0.02); }
+  </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+  <div id="auth-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 transition-all">
+    <div class="bg-zinc-950 border border-zinc-800 p-8 rounded-3xl text-center shadow-2xl">
+      <h1 class="text-3xl font-black text-white mb-6 tracking-widest">PRODUCTION <span class="text-blue-500">CORE</span></h1>
+      <button onclick="document.getElementById('auth-gate').style.display='none';" class="bg-blue-600 hover:bg-blue-500 text-white font-black px-8 py-3 rounded-xl transition shadow-lg active:scale-95">INITIALIZE ENGINE</button>
+    </div>
+  </div>
+
+  <div class="max-w-[1900px] mx-auto flex flex-col gap-8">
+    <header class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 neon-panel">
+      <div><h2 class="text-2xl font-black tracking-widest text-white">CMS <span class="text-blue-500">ENGINE</span></h2><p class="text-[10px] text-zinc-500 tracking-widest uppercase">Master Control Center</p></div>
+      <div class="flex flex-wrap gap-4 items-center">
+         <div class="flex items-center gap-2 bg-black p-2 border border-zinc-800 rounded-lg">
+            <span class="text-[9px] text-zinc-500 font-bold uppercase hidden sm:block">PROFILES: </span>
+            <button onclick="saveProf('A')" class="text-[9px] px-3 py-1 bg-blue-900 hover:bg-blue-600 rounded font-bold transition">SAVE A</button>
+            <button onclick="loadProf('A')" class="text-[9px] px-3 py-1 bg-zinc-800 hover:bg-zinc-600 rounded font-bold transition">LOAD A</button>
+            <button onclick="saveProf('B')" class="text-[9px] px-3 py-1 bg-purple-900 hover:bg-purple-600 rounded font-bold transition">SAVE B</button>
+            <button onclick="loadProf('B')" class="text-[9px] px-3 py-1 bg-zinc-800 hover:bg-zinc-600 rounded font-bold transition">LOAD B</button>
+         </div>
+         <div class="flex items-center gap-2 bg-black p-2 border border-zinc-800 rounded-lg">
+            <div class="flex flex-col"><label class="text-[8px] text-zinc-500 uppercase font-bold">Border Radius (px)</label><input type="number" id="g-br" class="bg-transparent text-white font-bold w-16" value="12"></div>
+            <div class="w-px h-6 bg-zinc-800"></div>
+            <div class="flex flex-col"><label class="text-[8px] text-zinc-500 uppercase font-bold">Master Effects</label><select id="g-fx" class="bg-transparent text-white font-bold text-xs outline-none"><option value="none">Raw Output</option><option value="drop">Cinema Shadow</option><option value="neon">Neon Border Glow</option></select></div>
+         </div>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+      <div class="lg:col-span-3 flex flex-col gap-6">
+        <div id="instant-container" class="bg-blue-900/10 border border-blue-500/30 rounded-2xl p-6 relative">
+          <!-- Populated by JS -->
+        </div>
+        <div id="slots-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="lg:col-span-1 bg-zinc-950 border border-zinc-800 rounded-2xl p-6 sticky top-8 flex flex-col gap-6 shadow-xl">
+        <div class="flex flex-col items-center">
+           <h3 class="text-xs tracking-widest text-zinc-400 font-black uppercase mb-4 flex items-center gap-2"><div class="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div> LIVE MONITOR VIEW</h3>
+           <div class="w-full aspect-video bg-black border border-zinc-800 rounded-lg flex items-center justify-center p-2 shadow-inner">
+              <div id="mon-box" class="relative flex transition-opacity duration-300 items-center justify-center bg-zinc-900 overflow-hidden" style="opacity:0;">
+                 <img id="mon-img" src="" style="width:100%;height:100%;object-fit:contain;position:absolute;z-index:1;">
+                 <div id="mon-txt" class="absolute bottom-2 text-[10px] text-white font-black uppercase z-10" style="text-shadow: 0 2px 4px black"></div>
+              </div>
+           </div>
+           <p class="text-[9px] font-mono text-zinc-500 mt-3 text-center uppercase">Provides simulated scale reference mapping to the active Broadcast renderer.</p>
+        </div>
+        <button id="clear-btn" class="w-full bg-red-900/80 hover:bg-red-700 text-white font-black py-4 rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] flex justify-center items-center gap-2 transition active:scale-95">
+          <span class="w-4 h-4 bg-white rounded-full flex items-center justify-center text-red-800 text-[10px] animate-pulse">✖</span> DISENGAGE OVERLAYS
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const bc = new BroadcastChannel('obs_stream_channel');
+    const DEF_IMG="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%2312141c'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-weight='bold' font-size='16' fill='%2371717a' text-anchor='middle' dy='.3em'%3ESOURCE REQUIRED%3C/text%3E%3C/svg%3E";
+    const animOpt=`
+      <option value="anim-cinematic">Cinematic Zoom In</option><option value="anim-3d-flip">3D Flip Reveal</option><option value="anim-elastic-bounce">Elastic Bounce Slide</option><option value="anim-neon-fade">Neon Alpha Fade</option><option value="anim-bottom-roller">Smooth Bottom Roller</option><option value="anim-skew-stretch">Left to Right Skew Stretcher</option><option value="anim-top-drop">Top Drop & Shake</option><option value="anim-flash-glitch">Flash Glitch Slide</option><option value="anim-diagonal-wave">Diagonal Wave Rotate</option><option value="anim-heartbeat">Heartbeat Pulse Entrance</option><option value="anim-split-horizon">Split Horizon Reveal</option><option value="anim-blur-focus">Blur to Sharp Focus</option><option value="anim-spiral-vortex">Spiral Vortex Spin</option><option value="anim-elegant-curtain">Elegant Curtain Slide</option><option value="anim-corner-snap">Corner Magnet Snap</option>`;
+    const extOpt=`<option value="exit-fade-out">Fade Out Wipe</option><option value="exit-slide-down">Slide Down Drain</option><option value="exit-zoom-out">Scale Zoom Out</option><option value="exit-3d-flip">3D Flip Collapse</option><option value="exit-bounce-out">Elastci Bounce Out</option>`;
+
+    let slots = JSON.parse(localStorage.getItem('cms_slots')) || Array.from({length:15}).map((_,i)=>({id:i+1, name:"Slot "+(i+1), image:DEF_IMG, width:640, height:360, anim:'anim-cinematic', exit:'exit-fade-out', text:'', timer:0, audio:false}));
+    let instant = JSON.parse(localStorage.getItem('cms_instant')) || { image:DEF_IMG, width:800, height:600, anim:'anim-cinematic', exit:'exit-fade-out', text:'', timer:0, audio:false };
+
+    function save() { try { localStorage.setItem('cms_slots',JSON.stringify(slots)); localStorage.setItem('cms_instant',JSON.stringify(instant)); } catch(e){ alert("Storage Full! Compress images."); } }
+    function saveProf(p) { try { localStorage.setItem('cms_prof_'+p, JSON.stringify({s:slots, i:instant, br:document.getElementById('g-br').value, fx:document.getElementById('g-fx').value})); alert("Saved to Local Profile "+p); } catch(e){} }
+    function loadProf(p) { try { const d=JSON.parse(localStorage.getItem('cms_prof_'+p)); if(d){ slots=d.s; instant=d.i; document.getElementById('g-br').value=d.br; document.getElementById('g-fx').value=d.fx; save(); render(); } } catch(e){} }
+
+    function compress(file, cb) {
+      const r=new FileReader(); r.onload=(e)=>{ const i=new Image(); i.onload=()=>{
+        const c=document.createElement("canvas"); let w=i.width, h=i.height; if(w>1000||h>1000){ let r=Math.min(1000/w,1000/h); w*=r;h*=r;}
+        c.width=w; c.height=h; c.getContext("2d").drawImage(i,0,0,w,h); cb(c.toDataURL("image/webp",0.75));
+      }; i.src=e.target.result; }; r.readAsDataURL(file);
+    }
+
+    function fire(cfg, id) {
+       const pl = { type:'trigger', slotId:id, image:cfg.image, width:cfg.width, height:cfg.height, animation:cfg.anim, exitAnimation:cfg.exit, textOverlay:cfg.text, autoHide:cfg.timer, audioEnabled:cfg.audio, borderRadius:document.getElementById("g-br").value, shadowEffect:document.getElementById("g-fx").value };
+       bc.postMessage(pl); try { localStorage.setItem('obs_stream_payload', JSON.stringify(pl)); } catch(e){}
+    }
+
+    function buildCard(cfg, isInst) {
+       const id = isInst ? 'instant' : cfg.id;
+       const div = document.createElement("div");
+       div.className = `slot-card bg-zinc-950 border ${isInst?'border-blue-500/50':'border-zinc-800'} rounded-2xl p-4 flex flex-col gap-3 transition relative shadow-lg`;
+       div.id = 'card-' + id;
+       div.innerHTML = `
+         ${isInst ? '<div class="absolute -top-3 left-4 bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded shadow-lg tracking-widest uppercase">Instant Master Directory</div>' : ''}
+         <div class="flex gap-2 ${isInst?'mt-2':''}">
+            ${isInst ? '' : `<span class="bg-black border border-zinc-800 px-2.5 py-1.5 rounded text-[10px] font-black text-zinc-500 flex items-center justify-center">ID:${id}</span>`}
+            <input type="text" class="i-name w-full bg-black border border-zinc-800 focus:border-blue-500 p-1.5 text-xs text-white font-bold rounded ${isInst?'hidden':''} outline-none transition" value="${cfg.name||''}" title="Slot Name Identifier">
+         </div>
+         <div class="flex gap-3">
+            <div class="w-16 h-16 bg-black rounded-lg overflow-hidden flex-shrink-0 relative border border-zinc-800">
+               <img src="${cfg.image}" class="i-img w-full h-full object-cover">
+            </div>
+            <div class="flex flex-col gap-1.5 w-full justify-center">
+               <input type="file" class="i-file hidden" accept="image/*">
+               <button class="i-upl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 hover:text-white text-[9.5px] py-[6px] rounded text-zinc-400 font-bold transition uppercase tracking-widest">Base64 Asset Upload</button>
+               <input type="text" class="i-txt bg-black border border-zinc-800 text-[11px] text-white p-1.5 rounded placeholder-zinc-600 outline-none focus:border-zinc-500 transition" placeholder="Text Overlay Layer..." value="${cfg.text}">
+            </div>
+         </div>
+         <div class="grid grid-cols-2 gap-2 mt-1">
+            <div class="flex bg-black border border-zinc-800 rounded items-center px-2"><span class="text-[9px] text-zinc-500 mr-2 font-bold pointer-events-none">W (px)</span><input type="number" class="i-w w-full bg-transparent outline-none text-white text-xs font-bold py-1.5" value="${cfg.width}"></div>
+            <div class="flex bg-black border border-zinc-800 rounded items-center px-2"><span class="text-[9px] text-zinc-500 mr-2 font-bold pointer-events-none">H (px)</span><input type="number" class="i-h w-full bg-transparent outline-none text-white text-xs font-bold py-1.5" value="${cfg.height}"></div>
+         </div>
+         <div class="flex gap-1.5">
+            <button class="b-16 bg-zinc-900 hover:bg-zinc-700 flex-1 text-[9px] text-zinc-400 py-1.5 rounded border border-zinc-800 font-bold transition">16:9 AR</button>
+            <button class="b-91 bg-zinc-900 hover:bg-zinc-700 flex-1 text-[9px] text-zinc-400 py-1.5 rounded border border-zinc-800 font-bold transition">9:16 AR</button>
+            <button class="b-11 bg-zinc-900 hover:bg-zinc-700 flex-1 text-[9px] text-zinc-400 py-1.5 rounded border border-zinc-800 font-bold transition">1:1 AR</button>
+         </div>
+         <div class="grid grid-cols-2 gap-2 mt-0.5">
+            <div><label class="text-[8px] text-zinc-500 font-bold uppercase ml-1 block mb-1 tracking-wider">Entry Animator</label><select class="i-ani w-full text-[9px] bg-black text-white p-1.5 rounded border border-zinc-800 font-bold outline-none">${animOpt}</select></div>
+            <div><label class="text-[8px] text-zinc-500 font-bold uppercase ml-1 block mb-1 tracking-wider">Exit Animator Wipe</label><select class="i-ext w-full text-[9px] bg-black text-white p-1.5 rounded border border-zinc-800 font-bold outline-none">${extOpt}</select></div>
+         </div>
+         <div class="flex gap-2 items-center bg-black/40 p-1.5 rounded border border-zinc-800/80">
+            <div class="w-1/2 flex items-center gap-2 pl-1"><label class="text-[8.5px] text-zinc-400 font-bold uppercase whitespace-nowrap tracking-wider">Auto-Hide (s)</label><input type="number" class="i-tim bg-black border border-zinc-700 text-white w-full rounded p-1 text-center text-[10px] font-bold outline-none" value="${cfg.timer}"></div>
+            <div class="w-px h-6 bg-zinc-800"></div>
+            <div class="w-1/2 flex justify-center items-center gap-2 cursor-pointer"><label class="text-[8.5px] text-zinc-400 font-bold uppercase cursor-pointer tracking-wider whitespace-nowrap">Audio Trigger</label><input type="checkbox" class="i-aud w-3.5 h-3.5 accent-blue-500" ${cfg.audio?'checked':''}></div>
+         </div>
+         <button class="i-trg w-full mt-2 ${isInst?'bg-blue-600 hover:bg-blue-500':'bg-emerald-700 hover:bg-emerald-600'} text-white font-black text-[11px] tracking-widest uppercase py-4 rounded-xl shadow-lg transition transform active:scale-[0.98] flex justify-center items-center gap-2 relative overflow-hidden group">
+            <span class="relative z-10">TRANSMIT LIVE</span>
+         </button>
+       `;
+
+       if(!isInst) div.querySelector(".i-name").oninput=(e)=>{cfg.name=e.target.value; save();}
+       div.querySelector(".i-upl").onclick=()=>div.querySelector(".i-file").click();
+       div.querySelector(".i-file").onchange=(e)=>{
+         if(e.target.files[0]) compress(e.target.files[0], (d)=>{ cfg.image=d; div.querySelector(".i-img").src=d; save(); });
+       };
+       div.querySelector(".i-txt").oninput=(e)=>{cfg.text=e.target.value; save();};
+       const w=div.querySelector(".i-w"); const h=div.querySelector(".i-h");
+       w.oninput=(e)=>{cfg.width=parseInt(e.target.value)||100; save();}; h.oninput=(e)=>{cfg.height=parseInt(e.target.value)||100; save();};
+       div.querySelector(".b-16").onclick=()=>{w.value=640; h.value=360; cfg.width=640; cfg.height=360; save();};
+       div.querySelector(".b-91").onclick=()=>{w.value=360; h.value=640; cfg.width=360; cfg.height=640; save();};
+       div.querySelector(".b-11").onclick=()=>{w.value=400; h.value=400; cfg.width=400; cfg.height=400; save();};
+       const ani=div.querySelector(".i-ani"); ani.value=cfg.anim; ani.onchange=(e)=>{cfg.anim=e.target.value; save();};
+       const ext=div.querySelector(".i-ext"); ext.value=cfg.exit; ext.onchange=(e)=>{cfg.exit=e.target.value; save();};
+       div.querySelector(".i-tim").oninput=(e)=>{cfg.timer=parseFloat(e.target.value)||0; save();};
+       div.querySelector(".i-aud").onchange=(e)=>{cfg.audio=e.target.checked; save();};
+       div.querySelector(".i-trg").onclick=()=>fire(cfg, id);
+       return div;
+    }
+
+    function render() {
+      document.getElementById("instant-container").innerHTML=""; document.getElementById("instant-container").appendChild(buildCard(instant, true));
+      const sgrid=document.getElementById("slots-grid"); sgrid.innerHTML=""; slots.forEach(s=>sgrid.appendChild(buildCard(s, false)));
+    }
+
+    document.getElementById("clear-btn").onclick = () => {
+       const pl={type:'clear'}; bc.postMessage(pl); try{localStorage.setItem('obs_stream_payload',JSON.stringify(pl));}catch(e){}
+    };
+
+    bc.onmessage = (e) => {
+       const d=e.data; if(!d) return;
+       if(d.type==='obs_started') {
+           document.querySelectorAll('.slot-card').forEach(c => { c.classList.remove('live-slot'); let btn=c.querySelector('.i-trg'); btn.classList.remove('live-btn'); btn.querySelector('.z-10').innerText='TRANSMIT LIVE'; });
+           const tgt = document.getElementById('card-'+d.slotId);
+           if(tgt) { tgt.classList.add('live-slot'); let btn=tgt.querySelector('.i-trg'); btn.classList.add('live-btn'); btn.querySelector('.z-10').innerText='🔴 LIVE ON AIR'; }
+           const b=document.getElementById('mon-box'); b.style.opacity='1'; b.style.aspectRatio=`${d.width}/${d.height}`; 
+           b.style.borderRadius=(d.br||0)+'px'; b.className=`relative flex items-center justify-center transition-all bg-zinc-900 border border-zinc-700 overflow-hidden ${d.fx&&d.fx!=='fx-none'?d.fx:''}`;
+           if(!d.br) b.style.borderRadius='0px';
+           document.getElementById('mon-img').src=d.image; document.getElementById('mon-txt').innerText=d.text;
+       }
+       if(d.type==='obs_cleared') {
+           document.querySelectorAll('.slot-card').forEach(c => { c.classList.remove('live-slot'); let btn=c.querySelector('.i-trg'); btn.classList.remove('live-btn'); btn.querySelector('.z-10').innerText='TRANSMIT LIVE'; });
+           document.getElementById('mon-box').style.opacity='0';
+       }
+    };
+    render();
+  </script>
+</body>
+</html>

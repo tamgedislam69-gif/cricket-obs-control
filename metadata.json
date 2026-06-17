@@ -1,0 +1,6 @@
+{
+  "name": "Cricket Streaming Graphics",
+  "description": "Professional cricket live stream graphics control panel and broadcast OBS overlay inspired by T Sports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
