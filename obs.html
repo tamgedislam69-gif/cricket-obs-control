@@ -2,13 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no font-sans">
   <title>OBS Engine Master - Phase 3</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@300;400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    /* Defensive global element sizing overrides */
+    img, svg {
+      max-width: 100%;
+      height: auto;
+      box-sizing: border-box;
+    }
+
     body { background: transparent !important; overflow: hidden; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
-    #obs-position-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0; pointer-events: none; transition: opacity 0.2s ease-out; }
-    #obs-animation-wrapper { display: flex; align-items: center; justify-content: center; transform-origin: center center; }
-    #obs-inner-bevel { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }
+    #obs-position-wrapper { 
+      position: absolute; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+      opacity: 0; 
+      pointer-events: none; 
+      transition: opacity 0.2s ease-out; 
+      max-width: 100vw;
+      max-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #obs-animation-wrapper { 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      transform-origin: center center; 
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+    #obs-inner-bevel { 
+      position: relative; 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      transition: all 0.3s; 
+      max-width: 100%;
+      max-height: 100%;
+    }
     #obs-media-img { width: 100%; height: 100%; object-fit: contain; position: absolute; z-index: 1; }
     
     #obs-text-overlay { 
@@ -148,6 +186,7 @@
         exitTimer = null;
       }
       posW.style.opacity = "0"; 
+      posW.style.transform = "translate(-50%, -50%) scale(1)";
       animW.className = ""; 
     }
 
@@ -218,6 +257,15 @@
           innerB.style.height = h + 'px'; 
           animW.style.width = w + 'px'; 
           animW.style.height = h + 'px';
+          
+          // Responsive fluid scaling: Scale container down dynamically if it is broader/taller than the display viewport!
+          const screenW = window.innerWidth || document.documentElement.clientWidth || 1920;
+          const screenH = window.innerHeight || document.documentElement.clientHeight || 1080;
+          let scale = 1;
+          if (w > screenW || h > screenH) {
+            scale = Math.min((screenW - 20) / w, (screenH - 20) / h); // safety buffer padding
+          }
+          posW.style.transform = `translate(-50%, -50%) scale(${scale})`;
           
           // Force reflow
           void animW.offsetWidth; 

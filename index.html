@@ -2,14 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>CMS Studio - Mobile OBS Control System</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="./style.css">
   
   <!-- Premium Google Fonts presets for Font Styler -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@300;400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
   
   <style>
+    /* Defensive rules for images and SVGs */
+    img, svg {
+      max-width: 100%;
+      height: auto;
+      box-sizing: border-box;
+    }
+
     /* Customizable root variables */
     :root {
       --accent-color: #3b82f6;
@@ -276,12 +283,12 @@
 
       <div class="flex items-center gap-2">
         <button onclick="toggleLock();" class="p-2.5 bg-zinc-800/80 border border-zinc-700/50 rounded-xl hover:bg-zinc-700 hover:text-white transition active:scale-95 text-zinc-300" title="Lock System">
-          <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
           </svg>
         </button>
         <button onclick="toggleSettingsModal();" class="p-2.5 dynamic-accent-bg border border-white/10 rounded-xl hover:opacity-90 text-white shadow-lg transition active:scale-95 flex items-center justify-center gap-1" title="Settings">
-          <svg class="w-4.5 h-4.5 animate-spin-slow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation-duration: 20s;">
+          <svg class="w-5 h-5 flex-shrink-0 animate-spin-slow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation-duration: 20s;">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
@@ -727,7 +734,7 @@
           <div class="w-24 h-4 bg-zinc-900 mx-auto rounded-b-md border-t border-zinc-800 shadow-lg"></div>
 
           <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-5">
-            <a href="/obs.html" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:brightness-110 text-white font-extrabold rounded-xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 text-xs uppercase tracking-widest transition active:scale-95">
+            <a href="./obs.html" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:brightness-110 text-white font-extrabold rounded-xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 text-xs uppercase tracking-widest transition active:scale-95">
               Launch Overlay (.html)
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
@@ -773,7 +780,7 @@
             <h3 class="text-base font-bold text-white uppercase tracking-wider">Console Preferences</h3>
           </div>
           <button onclick="toggleSettingsModal();" class="p-1.5 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 hover:text-white transition">
-            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
@@ -1155,6 +1162,8 @@
         splash.style.opacity = "0";
         setTimeout(() => {
           splash.style.display = "none";
+          splash.classList.add("hidden");
+          lock.classList.remove("hidden");
           lock.style.display = "flex";
           lock.classList.add("fade-in-up");
         }, 1000);
@@ -1215,6 +1224,8 @@
             lock.style.opacity = "0";
             setTimeout(() => {
               lock.style.display = "none";
+              lock.classList.add("hidden");
+              mainLayout.classList.remove("hidden");
               mainLayout.style.display = "flex";
               mainLayout.classList.add("fade-in-up");
             }, 600);
@@ -1261,8 +1272,17 @@
 
       const lock = document.getElementById("lock-screen");
       const mainLayout = document.getElementById("main-layout");
+      const modal = document.getElementById("settings-modal");
       
+      if (modal) {
+        modal.classList.add("hidden");
+        modal.style.display = "none";
+      }
+
+      mainLayout.classList.add("hidden");
       mainLayout.style.display = "none";
+      
+      lock.classList.remove("hidden");
       lock.style.display = "flex";
       lock.style.opacity = "1";
     }
@@ -1424,7 +1444,7 @@
 
     // ================= AUTOMATED OBS LINK GENERATOR =================
     function copyOBSScreenLink() {
-      const fullUrl = window.location.origin + "/obs.html";
+      const fullUrl = new URL("./obs.html", window.location.href).href;
       
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(fullUrl)
